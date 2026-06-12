@@ -1,4 +1,4 @@
-# Compose para deploy no Easypanel (NÃO é para uso local).
+# Compose de deploy no Easypanel (nome padrão docker-compose.yml). NÃO use localmente.
 # No Easypanel: criar um serviço do tipo "Compose" apontando para este repositório
 # e este arquivo. Definir as variáveis JWT_SECRET e POSTGRES_PASSWORD nas
 # Environment Variables do serviço.
