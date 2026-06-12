@@ -2,11 +2,12 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
+import { AuthProvider } from "../auth/AuthContext.js";
 import { TrilhaPage } from "../pages/TrilhaPage.js";
 function renderTrilha() {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <QueryClientProvider client={qc}><MemoryRouter><TrilhaPage /></MemoryRouter></QueryClientProvider>
+    <QueryClientProvider client={qc}><MemoryRouter><AuthProvider><TrilhaPage /></AuthProvider></MemoryRouter></QueryClientProvider>
   );
 }
 describe("TrilhaPage", () => {

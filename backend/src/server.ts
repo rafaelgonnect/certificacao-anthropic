@@ -4,6 +4,8 @@ import path from "node:path";
 import { authRoutes } from "./auth/routes.js";
 import { contentRoutes } from "./content/routes.js";
 import { learningRoutes } from "./learning/routes.js";
+import { examRoutes } from "./learning/examRoutes.js";
+import { adminRoutes } from "./admin/routes.js";
 export function createApp() {
   const app = express();
   app.use(cors());
@@ -15,6 +17,10 @@ export function createApp() {
   app.use("/learning", learningRoutes);
   app.use("/api", contentRoutes);
   app.use("/", contentRoutes);
+  app.use("/api", examRoutes);
+  app.use("/", examRoutes);
+  app.use("/api", adminRoutes);
+  app.use("/", adminRoutes);
   if (process.env.NODE_ENV === "production") {
     const publicDir = path.resolve(process.cwd(), "public");
     app.use(express.static(publicDir));

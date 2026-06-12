@@ -8,7 +8,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "vitest run",
-    "test:unit": "vitest run tests/env.test.ts tests/authunit.test.ts tests/scheduler.test.ts",
+    "test:unit": "vitest run tests/env.test.ts tests/authunit.test.ts tests/scheduler.test.ts tests/mastery.test.ts tests/examReport.test.ts",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:seed": "tsx prisma/seed.ts"

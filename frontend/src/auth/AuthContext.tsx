@@ -1,14 +1,37 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import { api, setToken } from "../api/client.js";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { api, getToken, setToken } from "../api/client.js";
 type User = { id: string; email: string; name: string; role: string };
 type AuthState = {
   user: User | null;
+  initializing: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 };
 const Ctx = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [initializing, setInitializing] = useState<boolean>(() => !!getToken());
+  useEffect(() => {
+    if (!getToken() || user) {
+      setInitializing(false);
+      return;
+    }
+    let active = true;
+    api<User>("/auth/me")
+      .then((u) => {
+        if (active) setUser(u);
+      })
+      .catch(() => {
+        setToken(null);
+      })
+      .finally(() => {
+        if (active) setInitializing(false);
+      });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   async function login(email: string, password: string) {
     const res = await api<{ token: string; user: User }>("/auth/login", {
       method: "POST",
@@ -18,7 +41,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user);
   }
   function logout() { setToken(null); setUser(null); }
-  return <Ctx.Provider value={{ user, login, logout }}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={{ user, initializing, login, logout }}>{children}</Ctx.Provider>
+  );
 }
 export function useAuth() {
   const ctx = useContext(Ctx);
