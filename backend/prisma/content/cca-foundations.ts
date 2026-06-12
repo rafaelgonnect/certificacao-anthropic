@@ -1,0 +1,1388 @@
+import type { CertificationPack } from "./pack.js";
+
+// Enriched "Claude Certified Architect - Foundations" content pack.
+//
+// Covers the four foundational areas: the Claude API (Messages), the Model
+// Context Protocol (MCP), Agent Skills, and Claude Code. The reading material is
+// written in Portuguese (the platform's language) and each lesson points to the
+// official documentation via a "> Leitura oficial:" callout.
+//
+// Tagging convention: "api" | "mcp" | "skills" | "claude-code" (a lesson may use
+// more than one tag when content crosses areas — e.g. MCP inside Claude Code).
+
+export const ccaFoundations: CertificationPack = {
+  slug: "cca-foundations",
+  title: "Claude Certified Architect – Foundations",
+  description:
+    "Fundamentos para construir aplicações de produção com Claude: a Claude API (Messages, tool use, streaming, prompt caching), o Model Context Protocol (MCP), Agent Skills e o Claude Code.",
+  version: 2,
+  modules: [
+    // =====================================================================
+    // MÓDULO 1 — CLAUDE API
+    // =====================================================================
+    {
+      title: "Claude API",
+      lessons: [
+        {
+          title: "Messages API: mensagens, system prompt e parâmetros",
+          readingMd: [
+            "# Messages API: mensagens, system prompt e parâmetros",
+            "",
+            "A **Messages API** é o ponto de entrada principal da Claude API. Você envia uma requisição para `POST /v1/messages` com três blocos essenciais:",
+            "",
+            "- **`model`** — o identificador do modelo (por exemplo, um modelo da família Sonnet, Opus ou Haiku).",
+            "- **`max_tokens`** — o limite máximo de tokens que o modelo pode **gerar** na resposta. É obrigatório. Ele não limita o tamanho da entrada, apenas da saída; se o modelo atinge esse teto, a resposta vem truncada com `stop_reason: \"max_tokens\"`.",
+            "- **`messages`** — um array de turnos da conversa. Cada item tem um `role` (`\"user\"` ou `\"assistant\"`) e um `content`. Os papéis devem se **alternar**, começando por `user`. O `content` pode ser uma string simples ou uma lista de *content blocks* (texto, imagem, tool_use, tool_result).",
+            "",
+            "## System prompt",
+            "",
+            "O **system prompt** é passado no campo de topo `system` (fora do array `messages`). Ele define o papel, o tom, as regras e o contexto persistente do modelo — não é um turno de usuário. Use-o para instruções de comportamento (\"você é um tutor de certificações Anthropic\"), restrições e formato de saída.",
+            "",
+            "## Parâmetros de amostragem",
+            "",
+            "- **`temperature`** (0 a 1) — controla a aleatoriedade. Valores próximos de 0 tornam a saída mais determinística e focada; valores maiores aumentam a diversidade. Para tarefas factuais/extrativas use temperatura baixa.",
+            "- **`top_p`** (nucleus sampling) — alternativa à temperature; normalmente ajusta-se **um** dos dois, não ambos.",
+            "- **`top_k`** — limita a amostragem aos k tokens mais prováveis.",
+            "- **`stop_sequences`** — lista de strings que, quando geradas, interrompem a resposta (`stop_reason: \"stop_sequence\"`).",
+            "",
+            "## A resposta",
+            "",
+            "A resposta é um objeto `Message` com `content` (lista de blocos — normalmente um bloco `text`), `stop_reason` (`end_turn`, `max_tokens`, `stop_sequence`, `tool_use`) e `usage` (contagem de `input_tokens` e `output_tokens`, importante para custo).",
+            "",
+            "> Leitura oficial: https://docs.anthropic.com/en/api/messages",
+          ].join("\n"),
+          flashcards: [
+            {
+              front: "Para que serve o parâmetro `max_tokens` na Messages API?",
+              back: "Define o número máximo de tokens que o modelo pode GERAR na resposta (não limita a entrada). É obrigatório; se atingido, stop_reason = \"max_tokens\".",
+              tags: ["api"],
+            },
+            {
+              front: "Onde se define o system prompt na Messages API?",
+              back: "No campo de topo `system`, separado do array `messages`. Ele define papel, regras e contexto persistente — não é um turno de usuário.",
+              tags: ["api"],
+            },
+            {
+              front: "Qual é a regra sobre os papéis (roles) no array `messages`?",
+              back: "Os papéis user e assistant devem se alternar e a conversa começa com um turno `user`.",
+              tags: ["api"],
+            },
+            {
+              front: "Diferença entre `temperature` e `top_p`?",
+              back: "Ambos controlam a aleatoriedade da amostragem; normalmente se ajusta apenas um. temperature escala a distribuição; top_p (nucleus) corta a cauda por massa de probabilidade.",
+              tags: ["api"],
+            },
+          ],
+          questions: [
+            {
+              prompt: "O que o parâmetro `max_tokens` limita?",
+              options: [
+                "O total de tokens de entrada (prompt)",
+                "O número máximo de tokens gerados na resposta",
+                "O número de mensagens no array `messages`",
+                "O tamanho máximo do system prompt",
+              ],
+              correctIndex: 1,
+              explanation:
+                "max_tokens limita apenas a SAÍDA gerada pelo modelo. Não restringe o tamanho da entrada.",
+              difficulty: 1,
+              tags: ["api"],
+            },
+            {
+              prompt: "Onde o system prompt é fornecido em uma requisição da Messages API?",
+              options: [
+                "Como o primeiro item do array `messages` com role `system`",
+                "No campo de topo `system`, fora do array `messages`",
+                "Dentro de `metadata`",
+                "Como uma `stop_sequence`",
+              ],
+              correctIndex: 1,
+              explanation:
+                "O system prompt vai no campo de topo `system`. A Messages API não usa um role `system` dentro do array `messages`.",
+              difficulty: 2,
+              tags: ["api"],
+            },
+            {
+              prompt:
+                "Para uma tarefa de extração factual onde você quer respostas consistentes e determinísticas, qual configuração faz mais sentido?",
+              options: [
+                "temperature alta (próxima de 1)",
+                "temperature baixa (próxima de 0)",
+                "max_tokens = 1",
+                "remover o system prompt",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Temperatura baixa reduz a aleatoriedade, produzindo saídas mais determinísticas e focadas — ideal para extração/classificação factual.",
+              difficulty: 1,
+              tags: ["api"],
+            },
+            {
+              prompt:
+                "Qual `stop_reason` indica que a resposta foi cortada por ter atingido o limite de geração?",
+              options: ["end_turn", "stop_sequence", "max_tokens", "tool_use"],
+              correctIndex: 2,
+              explanation:
+                "Quando o modelo atinge o teto de max_tokens, a resposta vem com stop_reason = \"max_tokens\" e pode estar incompleta.",
+              difficulty: 2,
+              tags: ["api"],
+            },
+          ],
+          labs: [
+            {
+              title: "Primeira chamada à Messages API",
+              promptMd: [
+                "# Lab: Primeira chamada à Messages API",
+                "",
+                "Escreva uma requisição mínima à Messages API que:",
+                "",
+                "1. Especifique o `model`.",
+                "2. Defina `max_tokens`.",
+                "3. Passe um `system` prompt definindo o papel do assistente.",
+                "4. Inclua uma mensagem de `user`.",
+                "5. Extraia o texto da resposta a partir do array `content`.",
+                "",
+                "Pode usar TypeScript (SDK `@anthropic-ai/sdk`), Python ou pseudocódigo.",
+              ].join("\n"),
+              rubric: [
+                "Especifica o model",
+                "Define max_tokens",
+                "Inclui um system prompt",
+                "Inclui uma mensagem de user",
+                "Extrai o texto do array content da resposta",
+              ],
+              modelAnswer: [
+                "```ts",
+                'import Anthropic from "@anthropic-ai/sdk";',
+                "const client = new Anthropic();",
+                "const res = await client.messages.create({",
+                '  model: "claude-sonnet-4-5",',
+                "  max_tokens: 1024,",
+                '  system: "Você é um tutor de certificações Anthropic. Responda de forma concisa.",',
+                '  messages: [{ role: "user", content: "Explique o que é max_tokens." }],',
+                "});",
+                'const texto = res.content',
+                '  .filter((b) => b.type === "text")',
+                '  .map((b) => b.text)',
+                '  .join("");',
+                "console.log(texto);",
+                "```",
+              ].join("\n"),
+            },
+          ],
+        },
+        {
+          title: "Tool use (function calling) e streaming",
+          readingMd: [
+            "# Tool use (function calling) e streaming",
+            "",
+            "## Tool use",
+            "",
+            "Com **tool use** (também chamado *function calling*) você descreve ferramentas que o modelo pode pedir para executar. O fluxo é:",
+            "",
+            "1. Você envia a requisição incluindo o array **`tools`**. Cada tool tem `name`, `description` e um **`input_schema`** em JSON Schema descrevendo os parâmetros.",
+            "2. Se o modelo decide usar uma ferramenta, ele responde com `stop_reason: \"tool_use\"` e um content block `tool_use` contendo `id`, `name` e `input` (os argumentos já estruturados).",
+            "3. **Seu código** executa a função de verdade (a API não executa nada por você) e envia uma nova mensagem de `user` contendo um content block **`tool_result`** com o mesmo `tool_use_id` e o resultado.",
+            "4. O modelo então produz a resposta final em linguagem natural.",
+            "",
+            "A qualidade da `description` de cada tool é decisiva: é a partir dela que o modelo decide quando e como chamar a ferramenta. Você pode influenciar isso com `tool_choice` (`auto`, `any`, ou forçar uma tool específica).",
+            "",
+            "## Streaming",
+            "",
+            "Passando **`stream: true`**, a resposta chega de forma incremental via **Server-Sent Events (SSE)**. Em vez de esperar a mensagem inteira, você recebe eventos como `message_start`, `content_block_start`, vários `content_block_delta` (os pedaços de texto), `content_block_stop` e `message_stop`. Streaming melhora a latência percebida e é praticamente obrigatório para respostas longas e para UIs de chat. Tool use também funciona com streaming (os argumentos chegam como deltas de JSON parcial).",
+            "",
+            "> Leitura oficial: https://docs.anthropic.com/en/docs/build-with-claude/tool-use e https://docs.anthropic.com/en/docs/build-with-claude/streaming",
+          ].join("\n"),
+          flashcards: [
+            {
+              front: "No tool use, quem executa de fato a função pedida pelo modelo?",
+              back: "O SEU código. A API só retorna um bloco tool_use com os argumentos estruturados; você executa e devolve um tool_result.",
+              tags: ["api"],
+            },
+            {
+              front: "O que cada tool precisa declarar na requisição?",
+              back: "name, description e input_schema (JSON Schema dos parâmetros). A description guia o modelo sobre quando usar a tool.",
+              tags: ["api"],
+            },
+            {
+              front: "Qual stop_reason indica que o modelo quer chamar uma ferramenta?",
+              back: 'stop_reason: "tool_use", acompanhado de um content block tool_use com id, name e input.',
+              tags: ["api"],
+            },
+            {
+              front: "Como você ativa streaming e por qual mecanismo a resposta chega?",
+              back: "Passando stream: true. A resposta chega de forma incremental via Server-Sent Events (eventos message_start, content_block_delta, etc.).",
+              tags: ["api"],
+            },
+          ],
+          questions: [
+            {
+              prompt: "No fluxo de tool use da Claude API, o que a API faz quando o modelo decide usar uma tool?",
+              options: [
+                "Executa a função no servidor da Anthropic e retorna o resultado",
+                "Retorna um content block tool_use com os argumentos, e o seu código executa a função",
+                "Recusa a requisição",
+                "Abre uma conexão de rede direta com a ferramenta",
+              ],
+              correctIndex: 1,
+              explanation:
+                "A API nunca executa a ferramenta. Ela devolve um bloco tool_use com input estruturado; cabe à sua aplicação executar e responder com tool_result.",
+              difficulty: 2,
+              tags: ["api"],
+            },
+            {
+              prompt: "Como você devolve ao modelo o resultado da execução de uma ferramenta?",
+              options: [
+                "Em uma nova mensagem de user com um content block tool_result referenciando o tool_use_id",
+                "Em uma mensagem de system",
+                "Alterando o input_schema da tool",
+                "Em um header HTTP",
+              ],
+              correctIndex: 0,
+              explanation:
+                "O resultado volta como um content block tool_result (dentro de uma mensagem user) que referencia o mesmo tool_use_id do pedido.",
+              difficulty: 2,
+              tags: ["api"],
+            },
+            {
+              prompt: "Qual campo de uma tool mais influencia a decisão do modelo de quando chamá-la?",
+              options: ["name", "description", "max_tokens", "id"],
+              correctIndex: 1,
+              explanation:
+                "A description (junto do input_schema) é o que o modelo usa para decidir quando e como usar a ferramenta. Descrições claras melhoram a precisão.",
+              difficulty: 1,
+              tags: ["api"],
+            },
+            {
+              prompt: "Qual é a principal vantagem de usar streaming (stream: true)?",
+              options: [
+                "Reduz o custo por token",
+                "Entrega a resposta de forma incremental, melhorando a latência percebida",
+                "Aumenta o max_tokens automaticamente",
+                "Garante saída determinística",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Streaming entrega tokens à medida que são gerados (via SSE), melhorando a experiência em respostas longas e chats. Não altera custo nem determinismo.",
+              difficulty: 1,
+              tags: ["api"],
+            },
+          ],
+          labs: [
+            {
+              title: "Defina uma tool e o loop de tool use",
+              promptMd: [
+                "# Lab: Defina uma tool e o loop de tool use",
+                "",
+                "Descreva (em código ou pseudocódigo) como dar ao Claude uma ferramenta `get_weather`:",
+                "",
+                "1. Declare a tool com `name`, `description` e `input_schema` (JSON Schema com `city`).",
+                "2. Mostre o que fazer quando a resposta vier com `stop_reason: \"tool_use\"`.",
+                "3. Mostre como devolver o resultado com um `tool_result` referenciando o `tool_use_id`.",
+                "4. Explique como o modelo produz a resposta final.",
+              ].join("\n"),
+              rubric: [
+                "Declara a tool com name, description e input_schema",
+                "Detecta stop_reason tool_use e lê o input",
+                "Executa a função e devolve tool_result com o tool_use_id correto",
+                "Explica que o modelo gera a resposta final a partir do tool_result",
+              ],
+              modelAnswer: [
+                "```ts",
+                "const tools = [{",
+                '  name: "get_weather",',
+                '  description: "Retorna o clima atual de uma cidade.",',
+                "  input_schema: {",
+                '    type: "object",',
+                '    properties: { city: { type: "string" } },',
+                '    required: ["city"],',
+                "  },",
+                "}];",
+                "",
+                "let messages = [{ role: \"user\", content: \"Como está o clima em Lisboa?\" }];",
+                "let res = await client.messages.create({ model, max_tokens: 1024, tools, messages });",
+                "",
+                'if (res.stop_reason === "tool_use") {',
+                '  const call = res.content.find((b) => b.type === "tool_use");',
+                "  const result = await getWeather(call.input.city); // sua função real",
+                "  messages.push({ role: \"assistant\", content: res.content });",
+                "  messages.push({ role: \"user\", content: [{",
+                '    type: "tool_result", tool_use_id: call.id, content: JSON.stringify(result),',
+                "  }]});",
+                "  res = await client.messages.create({ model, max_tokens: 1024, tools, messages });",
+                "}",
+                "// res agora contém a resposta final em linguagem natural.",
+                "```",
+              ].join("\n"),
+            },
+          ],
+        },
+        {
+          title: "Prompt caching, contagem de tokens e limites",
+          readingMd: [
+            "# Prompt caching, contagem de tokens e limites",
+            "",
+            "## Prompt caching",
+            "",
+            "O **prompt caching** permite marcar prefixos grandes e estáveis do prompt (system prompt extenso, documentos, definições de tools) para serem **reutilizados** entre requisições. Você adiciona `cache_control: { type: \"ephemeral\" }` ao final do bloco que quer cachear. Na primeira chamada há um custo de *escrita do cache*; nas chamadas seguintes que reutilizam aquele prefixo, os tokens vêm de `cache_read`, que é **muito mais barato** e reduz a latência. O cache tem um TTL curto (expira após alguns minutos de inatividade). É ideal quando você reenvia o mesmo contexto grande muitas vezes (chat com instruções longas, RAG com os mesmos documentos).",
+            "",
+            "O campo `usage` da resposta passa a incluir `cache_creation_input_tokens` e `cache_read_input_tokens`, além dos `input_tokens`/`output_tokens` normais.",
+            "",
+            "## Contagem de tokens e limites",
+            "",
+            "- Tudo é cobrado e limitado em **tokens** (pedaços de texto). Há um endpoint de **count tokens** (`/v1/messages/count_tokens`) para estimar o tamanho de uma requisição **antes** de enviá-la.",
+            "- Cada modelo tem uma **janela de contexto** (context window) máxima — o total de tokens de entrada + saída que cabe em uma requisição. Prompts muito grandes precisam ser resumidos/recortados.",
+            "- A conta tem **rate limits** (requisições por minuto, tokens de entrada e de saída por minuto). Exceder gera erro HTTP 429; a prática recomendada é *retry* com *exponential backoff*.",
+            "- `max_tokens` deve caber no orçamento da janela junto com a entrada.",
+            "",
+            "> Leitura oficial: https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching e https://docs.anthropic.com/en/docs/build-with-claude/token-counting",
+          ].join("\n"),
+          flashcards: [
+            {
+              front: "O que é prompt caching e quando vale a pena?",
+              back: "Reutilizar prefixos grandes e estáveis do prompt entre requisições (via cache_control ephemeral). Vale quando você reenvia o mesmo contexto grande muitas vezes — reduz custo e latência nas leituras de cache.",
+              tags: ["api"],
+            },
+            {
+              front: "Como você marca um bloco para cache?",
+              back: 'Adicionando cache_control: { type: "ephemeral" } ao final do bloco (ex.: system, documento ou definição de tools).',
+              tags: ["api"],
+            },
+            {
+              front: "Para que serve o endpoint count_tokens?",
+              back: "Estimar quantos tokens uma requisição vai consumir ANTES de enviá-la, ajudando a respeitar a janela de contexto e o orçamento.",
+              tags: ["api"],
+            },
+            {
+              front: "O que é a janela de contexto (context window)?",
+              back: "O número máximo de tokens (entrada + saída) que cabe em uma única requisição ao modelo.",
+              tags: ["api"],
+            },
+          ],
+          questions: [
+            {
+              prompt: "Qual é o principal benefício de custo do prompt caching?",
+              options: [
+                "Elimina totalmente o custo de output_tokens",
+                "Tokens de prefixo reutilizados são lidos do cache (cache_read) a um custo bem menor",
+                "Aumenta a janela de contexto do modelo",
+                "Remove os rate limits da conta",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Após a escrita inicial, os tokens do prefixo cacheado são cobrados como cache_read, muito mais barato, e ainda reduzem latência.",
+              difficulty: 2,
+              tags: ["api"],
+            },
+            {
+              prompt: "Qual cenário se beneficia MAIS de prompt caching?",
+              options: [
+                "Uma única requisição isolada com prompt pequeno",
+                "Muitas requisições que reenviam o mesmo system prompt longo e os mesmos documentos",
+                "Respostas curtas com temperature alta",
+                "Requisições que mudam totalmente o prompt a cada vez",
+              ],
+              correctIndex: 1,
+              explanation:
+                "O cache compensa quando há um prefixo grande e estável reutilizado em muitas chamadas. Prompts sempre diferentes não reaproveitam o cache.",
+              difficulty: 2,
+              tags: ["api"],
+            },
+            {
+              prompt: "Para que serve o endpoint count_tokens?",
+              options: [
+                "Para gerar a resposta sem cobrar",
+                "Para estimar o número de tokens de uma requisição antes de enviá-la",
+                "Para aumentar o rate limit",
+                "Para listar os modelos disponíveis",
+              ],
+              correctIndex: 1,
+              explanation:
+                "count_tokens estima o tamanho em tokens de uma requisição, útil para controlar custo e caber na janela de contexto.",
+              difficulty: 1,
+              tags: ["api"],
+            },
+            {
+              prompt: "Qual código de erro HTTP indica que você excedeu os rate limits, e qual a prática recomendada?",
+              options: [
+                "404; trocar de modelo",
+                "429; repetir com exponential backoff",
+                "500; aumentar max_tokens",
+                "401; reenviar sem system prompt",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Exceder os rate limits retorna HTTP 429. A prática recomendada é repetir a requisição com backoff exponencial.",
+              difficulty: 2,
+              tags: ["api"],
+            },
+          ],
+          labs: [
+            {
+              title: "Aplique prompt caching a um contexto grande",
+              promptMd: [
+                "# Lab: Aplique prompt caching a um contexto grande",
+                "",
+                "Você tem um assistente que, a cada pergunta do usuário, reenvia um manual de 20 páginas como contexto.",
+                "",
+                "1. Explique por que prompt caching ajuda aqui.",
+                "2. Mostre onde colocar `cache_control` na requisição.",
+                "3. Diga quais campos de `usage` confirmam que o cache foi usado.",
+                "4. Cite uma limitação do cache (ex.: TTL).",
+              ].join("\n"),
+              rubric: [
+                "Explica que o manual é um prefixo grande e estável reutilizado a cada chamada",
+                "Posiciona cache_control: ephemeral no bloco do manual/system",
+                "Cita cache_creation_input_tokens e cache_read_input_tokens em usage",
+                "Menciona uma limitação como o TTL curto do cache",
+              ],
+              modelAnswer: [
+                "1. O manual é o mesmo em toda requisição (prefixo estável e grande). Cacheá-lo evita reprocessar/recobrar esses tokens a cada pergunta.",
+                "2. Marque o bloco do manual (ou o system) com cache_control:",
+                "```ts",
+                "system: [",
+                '  { type: "text", text: MANUAL_DE_20_PAGINAS, cache_control: { type: "ephemeral" } },',
+                "],",
+                "```",
+                "3. Em `usage`, observe `cache_creation_input_tokens` na primeira chamada e `cache_read_input_tokens` (alto) nas seguintes.",
+                "4. Limitação: o cache é efêmero e expira após alguns minutos de inatividade (TTL curto), então o ganho some se as chamadas forem muito espaçadas.",
+              ].join("\n"),
+            },
+          ],
+        },
+      ],
+    },
+
+    // =====================================================================
+    // MÓDULO 2 — MODEL CONTEXT PROTOCOL (MCP)
+    // =====================================================================
+    {
+      title: "Model Context Protocol (MCP)",
+      lessons: [
+        {
+          title: "Arquitetura do MCP: host, client e server",
+          readingMd: [
+            "# Arquitetura do MCP: host, client e server",
+            "",
+            "O **Model Context Protocol (MCP)** é um protocolo **aberto** que padroniza como aplicações de IA se conectam a ferramentas e fontes de dados externas — pense nele como uma \"porta USB-C\" para conectar modelos a sistemas.",
+            "",
+            "## Os três papéis",
+            "",
+            "- **Host** — a aplicação de IA com a qual o usuário interage (por exemplo, o Claude Desktop ou o Claude Code). O host orquestra a conversa com o modelo.",
+            "- **Client** — vive **dentro** do host. Cada client mantém uma conexão **1:1** com um server. É o client que fala o protocolo MCP com aquele server específico.",
+            "- **Server** — um programa (separado) que **expõe** capacidades: ferramentas, dados e prompts. Um server pode ser local (seu sistema de arquivos, um banco de dados) ou remoto (uma API na web).",
+            "",
+            "Um host pode rodar **vários** clients simultaneamente, cada um conectado a um server diferente — assim o Claude pode, na mesma conversa, acessar o GitHub, um banco de dados e o sistema de arquivos.",
+            "",
+            "## Por que isso importa",
+            "",
+            "Antes do MCP, cada integração era um conector sob medida (N modelos × M ferramentas). O MCP transforma isso em um padrão único: qualquer host compatível conversa com qualquer server compatível. A comunicação usa mensagens **JSON-RPC 2.0**.",
+            "",
+            "> Leitura oficial: https://modelcontextprotocol.io/docs/concepts/architecture",
+          ].join("\n"),
+          flashcards: [
+            {
+              front: "Quais são os três papéis na arquitetura do MCP?",
+              back: "Host (a aplicação de IA), Client (vive no host, conexão 1:1 com um server) e Server (expõe tools/resources/prompts).",
+              tags: ["mcp"],
+            },
+            {
+              front: "Qual é a relação entre client e server no MCP?",
+              back: "1:1 — cada client mantém uma única conexão com um server. Um host pode ter vários clients, um por server.",
+              tags: ["mcp"],
+            },
+            {
+              front: "Qual formato de mensagem o MCP usa por baixo?",
+              back: "JSON-RPC 2.0.",
+              tags: ["mcp"],
+            },
+            {
+              front: "Qual problema o MCP resolve em relação a integrações sob medida?",
+              back: "Substitui o explosivo N×M de conectores ad hoc por um padrão único: qualquer host compatível conversa com qualquer server compatível.",
+              tags: ["mcp"],
+            },
+          ],
+          questions: [
+            {
+              prompt: "No MCP, o que é o 'host'?",
+              options: [
+                "O servidor que expõe as ferramentas",
+                "A aplicação de IA com a qual o usuário interage e que orquestra o modelo",
+                "O protocolo de transporte",
+                "O banco de dados subjacente",
+              ],
+              correctIndex: 1,
+              explanation:
+                "O host é a aplicação de IA (ex.: Claude Desktop, Claude Code). Ela hospeda os clients e orquestra a conversa com o modelo.",
+              difficulty: 1,
+              tags: ["mcp"],
+            },
+            {
+              prompt: "Qual é a cardinalidade da conexão entre um client MCP e um server MCP?",
+              options: ["1:N", "N:1", "1:1", "N:M"],
+              correctIndex: 2,
+              explanation:
+                "Cada client mantém uma conexão 1:1 com um server. O host pode ter vários clients (um por server).",
+              difficulty: 2,
+              tags: ["mcp"],
+            },
+            {
+              prompt: "Qual padrão de mensagens o MCP utiliza para a comunicação entre client e server?",
+              options: ["SOAP", "JSON-RPC 2.0", "GraphQL", "gRPC/Protobuf"],
+              correctIndex: 1,
+              explanation: "O MCP é construído sobre mensagens JSON-RPC 2.0.",
+              difficulty: 2,
+              tags: ["mcp"],
+            },
+            {
+              prompt: "Qual afirmação descreve melhor o valor do MCP?",
+              options: [
+                "Substitui a Claude API",
+                "Padroniza a conexão entre aplicações de IA e ferramentas/dados, evitando conectores sob medida para cada par",
+                "É um modelo de linguagem",
+                "Serve apenas para servidores na nuvem",
+              ],
+              correctIndex: 1,
+              explanation:
+                "O MCP é um protocolo aberto que padroniza integrações, transformando o problema N×M em um padrão único host↔server.",
+              difficulty: 1,
+              tags: ["mcp"],
+            },
+          ],
+          labs: [
+            {
+              title: "Mapeie os papéis MCP em um cenário real",
+              promptMd: [
+                "# Lab: Mapeie os papéis MCP em um cenário real",
+                "",
+                "O usuário usa o Claude Desktop e quer que ele consulte um banco PostgreSQL e leia arquivos locais na mesma conversa.",
+                "",
+                "Para esse cenário, identifique:",
+                "1. Quem é o host.",
+                "2. Quantos clients existem e a quê cada um se conecta.",
+                "3. Quais são os servers.",
+                "4. Por que a relação client↔server é 1:1.",
+              ].join("\n"),
+              rubric: [
+                "Identifica o Claude Desktop como host",
+                "Indica dois clients (um para o server de Postgres, outro para o de filesystem)",
+                "Lista os dois servers (Postgres e filesystem)",
+                "Explica que cada client mantém uma conexão 1:1 com seu server",
+              ],
+              modelAnswer: [
+                "1. **Host**: o Claude Desktop (a aplicação de IA).",
+                "2. **Clients**: dois clients dentro do host — um conectado ao server de Postgres, outro ao server de filesystem.",
+                "3. **Servers**: o server MCP de PostgreSQL e o server MCP de sistema de arquivos.",
+                "4. A relação é 1:1 porque cada client gerencia exatamente uma conexão com um server; para falar com dois servers, o host instancia dois clients.",
+              ].join("\n"),
+            },
+          ],
+        },
+        {
+          title: "Tools, resources e prompts; transports",
+          readingMd: [
+            "# Tools, resources e prompts; transports",
+            "",
+            "## As três primitivas do server",
+            "",
+            "Um server MCP pode expor três tipos de capacidade:",
+            "",
+            "- **Tools** — funções **executáveis** que o modelo pode invocar para realizar ações ou buscar dados dinâmicos (ex.: `create_issue`, `query_db`). São **model-controlled**: o modelo decide chamá-las (com aprovação do usuário, quando aplicável). Cada tool tem nome, descrição e um schema de entrada.",
+            "- **Resources** — **dados/conteúdo** somente-leitura que o server disponibiliza como contexto (ex.: o conteúdo de um arquivo, uma linha de banco, uma página). São **application-controlled**: tipicamente o host/usuário decide o que carregar. Cada resource é identificado por uma **URI** (ex.: `file:///caminho` ou `postgres://...`).",
+            "- **Prompts** — **templates** de mensagens/fluxos reutilizáveis, normalmente **user-controlled** (ex.: o usuário escolhe um prompt \"/resumir-PR\" no menu). Ajudam a padronizar interações comuns.",
+            "",
+            "Resumo da diferença-chave: **tools agem**, **resources fornecem contexto**, **prompts orientam interações**.",
+            "",
+            "## Transports",
+            "",
+            "O **transport** é o canal por onde client e server trocam mensagens JSON-RPC:",
+            "",
+            "- **stdio** — o client inicia o server como um **subprocesso local** e troca mensagens pela entrada/saída padrão. É o padrão para servers locais (rápido, simples, sem rede).",
+            "- **HTTP (streamable HTTP / SSE)** — usado para servers **remotos**, acessíveis pela rede. Permite hospedar um server como serviço web e suporta streaming de respostas.",
+            "",
+            "> Leitura oficial: https://modelcontextprotocol.io/docs/concepts/tools , https://modelcontextprotocol.io/docs/concepts/resources e https://modelcontextprotocol.io/docs/concepts/transports",
+          ].join("\n"),
+          flashcards: [
+            {
+              front: "Diferença entre tools, resources e prompts no MCP?",
+              back: "Tools agem (funções executáveis, model-controlled); resources fornecem contexto somente-leitura identificado por URI (application-controlled); prompts são templates de interação reutilizáveis (user-controlled).",
+              tags: ["mcp"],
+            },
+            {
+              front: "Como um resource MCP é identificado?",
+              back: "Por uma URI (ex.: file:///caminho, postgres://...).",
+              tags: ["mcp"],
+            },
+            {
+              front: "O que é o transport stdio e quando usá-lo?",
+              back: "O client roda o server como subprocesso local e troca mensagens JSON-RPC pela entrada/saída padrão. É o transport padrão para servers locais.",
+              tags: ["mcp"],
+            },
+            {
+              front: "Que transport se usa para um server MCP remoto?",
+              back: "HTTP (streamable HTTP / SSE), que expõe o server como serviço de rede.",
+              tags: ["mcp"],
+            },
+          ],
+          questions: [
+            {
+              prompt: "Qual primitiva do MCP é executável e tipicamente controlada pelo modelo?",
+              options: ["Resources", "Tools", "Prompts", "Transports"],
+              correctIndex: 1,
+              explanation:
+                "Tools são funções executáveis (model-controlled): o modelo decide invocá-las. Resources são dados somente-leitura; prompts são templates.",
+              difficulty: 1,
+              tags: ["mcp"],
+            },
+            {
+              prompt: "Qual primitiva fornece dados/conteúdo somente-leitura, identificado por uma URI?",
+              options: ["Tools", "Resources", "Prompts", "Sampling"],
+              correctIndex: 1,
+              explanation:
+                "Resources expõem conteúdo somente-leitura como contexto, cada um endereçado por uma URI.",
+              difficulty: 2,
+              tags: ["mcp"],
+            },
+            {
+              prompt: "Para um server MCP local, qual transport é o padrão?",
+              options: ["HTTP/SSE", "stdio", "WebSocket puro", "FTP"],
+              correctIndex: 1,
+              explanation:
+                "Servers locais usam stdio: o client os inicia como subprocesso e troca mensagens pela entrada/saída padrão.",
+              difficulty: 1,
+              tags: ["mcp"],
+            },
+            {
+              prompt: "Você quer expor um server MCP como serviço web acessível remotamente. Qual transport usar?",
+              options: ["stdio", "HTTP (streamable HTTP / SSE)", "porta serial", "memória compartilhada"],
+              correctIndex: 1,
+              explanation:
+                "Para servers remotos usa-se HTTP (streamable HTTP / SSE), que funciona pela rede e suporta streaming.",
+              difficulty: 2,
+              tags: ["mcp"],
+            },
+          ],
+          labs: [
+            {
+              title: "Classifique capacidades em tools, resources e prompts",
+              promptMd: [
+                "# Lab: Classifique capacidades em tools, resources e prompts",
+                "",
+                "Para um server MCP de um sistema de chamados (tickets), classifique cada capacidade abaixo como **tool**, **resource** ou **prompt** e justifique:",
+                "",
+                "1. `create_ticket(title, body)` — abre um novo chamado.",
+                "2. O conteúdo do chamado #42, endereçável por uma URI.",
+                "3. Um template \"/triagem\" que monta uma mensagem padrão para triar um chamado.",
+                "4. Diga também qual transport você usaria se esse server rodasse localmente.",
+              ].join("\n"),
+              rubric: [
+                "Classifica create_ticket como tool (ação executável)",
+                "Classifica o conteúdo do chamado #42 como resource (dados somente-leitura via URI)",
+                "Classifica o template /triagem como prompt (interação reutilizável)",
+                "Indica stdio como transport para o server local",
+              ],
+              modelAnswer: [
+                "1. **Tool** — `create_ticket` executa uma ação (cria um chamado); é model-controlled.",
+                "2. **Resource** — o conteúdo do chamado #42 é dado somente-leitura, exposto por uma URI (ex.: `ticket://42`).",
+                "3. **Prompt** — `/triagem` é um template de interação reutilizável, escolhido pelo usuário.",
+                "4. **Transport**: stdio, por ser um server local iniciado como subprocesso.",
+              ].join("\n"),
+            },
+          ],
+        },
+        {
+          title: "Construindo um servidor MCP",
+          readingMd: [
+            "# Construindo um servidor MCP",
+            "",
+            "Construir um server MCP é, na prática, declarar capacidades e ligar o server a um transport. Os SDKs oficiais (TypeScript e Python) cuidam do protocolo JSON-RPC para você.",
+            "",
+            "## Passos típicos (SDK TypeScript)",
+            "",
+            "1. **Instancie o server** com um nome e versão e declare quais capacidades ele oferece (tools, resources, prompts).",
+            "2. **Registre tools**: para cada tool, informe `name`, `description`, o **input schema** (validado, por exemplo com Zod) e um *handler* que executa a lógica e retorna o resultado.",
+            "3. **Registre resources** (opcional): associe URIs ao conteúdo a ser devolvido na leitura.",
+            "4. **Conecte um transport**: para uso local, conecte um `StdioServerTransport`; para remoto, um transport HTTP.",
+            "5. **Registre o server no host**: por exemplo, adicione-o à configuração do Claude Desktop/Claude Code (comando + argumentos), e o host passará a iniciar o server e listar suas tools.",
+            "",
+            "## Boas práticas",
+            "",
+            "- Dê **descrições claras** às tools — é assim que o modelo decide usá-las corretamente.",
+            "- **Valide as entradas** com schema e trate erros devolvendo mensagens úteis em vez de derrubar o server.",
+            "- Mantenha as tools **pequenas e focadas**; prefira nomes orientados à ação (`get_`, `create_`, `search_`).",
+            "- Aplique o **princípio do menor privilégio**: exponha só o necessário (ferramentas perigosas devem exigir confirmação no host).",
+            "",
+            "> Leitura oficial: https://modelcontextprotocol.io/quickstart/server",
+          ].join("\n"),
+          flashcards: [
+            {
+              front: "O que você precisa fornecer ao registrar uma tool em um server MCP?",
+              back: "name, description, um input schema (validado, ex.: com Zod) e um handler que executa a lógica e retorna o resultado.",
+              tags: ["mcp"],
+            },
+            {
+              front: "Como um server MCP local é ligado ao canal de comunicação no SDK?",
+              back: "Conectando um StdioServerTransport (entrada/saída padrão). Para remoto, usa-se um transport HTTP.",
+              tags: ["mcp"],
+            },
+            {
+              front: "Por que descrições claras de tools são importantes em um server MCP?",
+              back: "É a partir da description que o modelo decide quando e como usar a tool — descrições ruins levam a chamadas erradas ou ausentes.",
+              tags: ["mcp"],
+            },
+            {
+              front: "Como o host passa a conhecer um server MCP que você construiu?",
+              back: "Você registra o server na configuração do host (ex.: comando + argumentos no Claude Desktop/Code); o host então o inicia e lista suas tools.",
+              tags: ["mcp"],
+            },
+          ],
+          questions: [
+            {
+              prompt: "Ao registrar uma tool em um server MCP, o que NÃO faz parte da declaração da tool?",
+              options: [
+                "name",
+                "description",
+                "input schema",
+                "o modelo de linguagem que vai chamá-la",
+              ],
+              correctIndex: 3,
+              explanation:
+                "A tool declara name, description e input schema (e tem um handler). Qual modelo a chama é decisão do host/usuário, não parte da tool.",
+              difficulty: 2,
+              tags: ["mcp"],
+            },
+            {
+              prompt: "No SDK, como você normalmente conecta um server MCP local ao seu transport?",
+              options: [
+                "Abrindo um socket TCP manualmente",
+                "Conectando um StdioServerTransport",
+                "Escrevendo num arquivo de log",
+                "Publicando numa fila de mensagens",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Para servers locais, conecta-se um StdioServerTransport, que usa a entrada/saída padrão para o JSON-RPC.",
+              difficulty: 2,
+              tags: ["mcp"],
+            },
+            {
+              prompt: "Qual é uma boa prática ao construir tools em um server MCP?",
+              options: [
+                "Criar uma única tool gigante que faz tudo",
+                "Manter tools pequenas e focadas, com descrições claras e validação de entrada",
+                "Omitir as descrições para economizar tokens",
+                "Expor todas as operações sensíveis sem confirmação",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Tools pequenas, bem descritas e com entrada validada são mais fáceis de o modelo usar corretamente; operações sensíveis devem exigir confirmação.",
+              difficulty: 1,
+              tags: ["mcp"],
+            },
+            {
+              prompt: "Por que aplicar o princípio do menor privilégio em um server MCP?",
+              options: [
+                "Para reduzir o número de tokens",
+                "Para expor apenas as capacidades necessárias e limitar o risco de ações perigosas",
+                "Porque o protocolo exige no máximo uma tool",
+                "Para acelerar o stdio",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Expor só o necessário (e exigir confirmação em ações perigosas) reduz a superfície de risco do server.",
+              difficulty: 2,
+              tags: ["mcp"],
+            },
+          ],
+          labs: [
+            {
+              title: "Esboce um server MCP de clima",
+              promptMd: [
+                "# Lab: Esboce um server MCP de clima",
+                "",
+                "Descreva (código ou pseudocódigo) um server MCP `weather` que:",
+                "",
+                "1. Registre a tool `get_forecast` com um input schema (`city`) validado.",
+                "2. Tenha um handler que retorne uma previsão (pode ser simulada).",
+                "3. Conecte um transport stdio para uso local.",
+                "4. Mencione como registrá-lo num host (ex.: Claude Desktop/Code).",
+              ].join("\n"),
+              rubric: [
+                "Registra a tool get_forecast com input schema validado (city)",
+                "Implementa um handler que retorna a previsão",
+                "Conecta um StdioServerTransport",
+                "Explica como registrar o server na config do host",
+              ],
+              modelAnswer: [
+                "```ts",
+                'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";',
+                'import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";',
+                'import { z } from "zod";',
+                "",
+                'const server = new McpServer({ name: "weather", version: "1.0.0" });',
+                "",
+                "server.tool(",
+                '  "get_forecast",',
+                '  "Retorna a previsão do tempo de uma cidade.",',
+                "  { city: z.string() },",
+                "  async ({ city }) => ({",
+                '    content: [{ type: "text", text: `Tempo em ${city}: 24°C, ensolarado.` }],',
+                "  }),",
+                ");",
+                "",
+                "await server.connect(new StdioServerTransport());",
+                "```",
+                "",
+                "Para registrar no host, adicione à config (ex.: claude_desktop_config.json):",
+                "```json",
+                '{ "mcpServers": { "weather": { "command": "node", "args": ["weather.js"] } } }',
+                "```",
+              ].join("\n"),
+            },
+          ],
+        },
+      ],
+    },
+
+    // =====================================================================
+    // MÓDULO 3 — AGENT SKILLS
+    // =====================================================================
+    {
+      title: "Agent Skills",
+      lessons: [
+        {
+          title: "O que é uma Skill e o SKILL.md",
+          readingMd: [
+            "# O que é uma Skill e o SKILL.md",
+            "",
+            "Uma **Agent Skill** é uma pasta que empacota conhecimento e capacidades reutilizáveis para o Claude — instruções, e opcionalmente scripts e arquivos de apoio — que o Claude carrega **quando são relevantes** para a tarefa.",
+            "",
+            "## Anatomia",
+            "",
+            "No coração de toda skill está um arquivo **`SKILL.md`** com duas partes:",
+            "",
+            "1. **Frontmatter YAML** (no topo, entre `---`) com pelo menos:",
+            "   - **`name`** — identificador curto da skill.",
+            "   - **`description`** — explica **o que a skill faz e QUANDO usá-la**. Este é o campo mais importante: o Claude lê apenas o name e a description de todas as skills disponíveis para decidir qual ativar. Descrições específicas e ricas em **gatilhos** (\"use quando o usuário pedir X, Y, Z\") melhoram muito a ativação correta.",
+            "2. **Corpo em Markdown** — as instruções detalhadas, exemplos e procedimentos que o Claude segue **depois** de decidir usar a skill.",
+            "",
+            "## Estrutura de pastas",
+            "",
+            "Além do `SKILL.md`, uma skill pode trazer **scripts** (ex.: Python utilitário), **referências** (documentos, templates) e outros **recursos** na mesma pasta. A skill referencia esses arquivos para que o Claude os carregue só quando precisar.",
+            "",
+            "> Leitura oficial: https://docs.anthropic.com/en/docs/agents-and-tools/agent-skills/overview",
+          ].join("\n"),
+          flashcards: [
+            {
+              front: "O que é uma Agent Skill?",
+              back: "Uma pasta que empacota instruções e capacidades reutilizáveis (com SKILL.md e opcionalmente scripts/recursos) que o Claude carrega quando são relevantes para a tarefa.",
+              tags: ["skills"],
+            },
+            {
+              front: "Quais campos são essenciais no frontmatter de um SKILL.md?",
+              back: "name (identificador curto) e description (o que a skill faz e QUANDO usá-la). A description é o campo que o Claude usa para decidir ativar a skill.",
+              tags: ["skills"],
+            },
+            {
+              front: "Por que a description do SKILL.md deve ser específica e rica em gatilhos?",
+              back: "Porque o Claude lê apenas name + description de todas as skills para decidir qual usar; gatilhos claros melhoram a ativação correta.",
+              tags: ["skills"],
+            },
+            {
+              front: "Além do SKILL.md, o que mais pode haver numa skill?",
+              back: "Scripts (ex.: utilitários Python), referências/templates e outros recursos na mesma pasta, carregados apenas quando necessários.",
+              tags: ["skills"],
+            },
+          ],
+          questions: [
+            {
+              prompt: "Qual arquivo está no coração de toda Agent Skill?",
+              options: ["README.md", "SKILL.md", "package.json", "index.ts"],
+              correctIndex: 1,
+              explanation:
+                "Toda skill tem um SKILL.md com frontmatter (name/description) e o corpo de instruções em Markdown.",
+              difficulty: 1,
+              tags: ["skills"],
+            },
+            {
+              prompt: "Por que a `description` no frontmatter é o campo mais crítico de uma skill?",
+              options: [
+                "Porque define a cor da skill na UI",
+                "Porque o Claude usa name + description para decidir QUANDO ativar a skill",
+                "Porque é a única parte executável",
+                "Porque substitui o system prompt",
+              ],
+              correctIndex: 1,
+              explanation:
+                "O Claude lê apenas name e description de cada skill para escolher qual ativar; daí a importância de uma description específica e com gatilhos.",
+              difficulty: 2,
+              tags: ["skills"],
+            },
+            {
+              prompt: "O que o corpo em Markdown do SKILL.md contém?",
+              options: [
+                "Apenas o título da skill",
+                "As instruções detalhadas, exemplos e procedimentos que o Claude segue após ativar a skill",
+                "As credenciais de API",
+                "O código-fonte do modelo",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Depois de decidir usar a skill (via frontmatter), o Claude segue as instruções detalhadas do corpo Markdown.",
+              difficulty: 1,
+              tags: ["skills"],
+            },
+            {
+              prompt: "Uma skill pode incluir scripts e arquivos de referência além do SKILL.md?",
+              options: [
+                "Não, apenas o SKILL.md é permitido",
+                "Sim, na mesma pasta, carregados pelo Claude apenas quando necessários",
+                "Sim, mas precisam estar num repositório separado",
+                "Apenas imagens são permitidas",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Uma skill é uma pasta: pode trazer scripts, templates e referências que o Claude carrega sob demanda.",
+              difficulty: 2,
+              tags: ["skills"],
+            },
+          ],
+          labs: [
+            {
+              title: "Escreva o frontmatter de uma SKILL.md",
+              promptMd: [
+                "# Lab: Escreva o frontmatter de uma SKILL.md",
+                "",
+                "Crie o frontmatter (YAML) de uma `SKILL.md` para uma skill que gera relatórios financeiros em Excel. Inclua:",
+                "",
+                "1. Um `name` claro.",
+                "2. Uma `description` específica e rica em gatilhos (o que faz e quando usar).",
+                "3. Uma frase explicando por que essa description ajuda a ativação correta.",
+              ].join("\n"),
+              rubric: [
+                "Inclui o campo name",
+                "Inclui o campo description",
+                "A description traz gatilhos específicos de quando usar",
+                "Explica que name+description são o que o Claude usa para ativar a skill",
+              ],
+              modelAnswer: [
+                "```markdown",
+                "---",
+                "name: excel-financial-reports",
+                "description: Gera relatórios financeiros em planilhas .xlsx (DRE, fluxo de caixa, KPIs). Use quando o usuário pedir para montar, formatar ou exportar relatórios financeiros em Excel a partir de dados tabulares.",
+                "---",
+                "```",
+                "",
+                "A description é específica e cheia de gatilhos (\"DRE\", \"fluxo de caixa\", \"exportar em Excel\"). Como o Claude decide ativar a skill lendo apenas name + description, esses gatilhos aumentam a chance de a skill ser escolhida exatamente nas tarefas certas.",
+              ].join("\n"),
+            },
+          ],
+        },
+        {
+          title: "Progressive disclosure e ativação de skills",
+          readingMd: [
+            "# Progressive disclosure e ativação de skills",
+            "",
+            "## Progressive disclosure (revelação progressiva)",
+            "",
+            "Skills foram desenhadas para **não** poluir o contexto. O Claude carrega informação em **camadas**, só quando precisa:",
+            "",
+            "1. **Sempre carregado**: apenas o `name` e a `description` de cada skill disponível (poucos tokens). É o índice que permite ao Claude saber o que existe.",
+            "2. **Ao ativar a skill**: o Claude lê o **corpo do SKILL.md** com as instruções completas.",
+            "3. **Sob demanda**: arquivos e scripts referenciados pela skill são lidos/executados só quando a tarefa exige.",
+            "",
+            "Esse mecanismo de **progressive disclosure** mantém o uso de tokens enxuto e permite ter muitas skills instaladas sem sobrecarregar o modelo.",
+            "",
+            "## Quando o Claude invoca uma skill",
+            "",
+            "A ativação é **automática e baseada na tarefa**: o Claude compara o pedido do usuário com as descriptions das skills e ativa a que melhor casa. Não é o usuário que precisa digitar o nome do arquivo. Por isso, descrições vagas levam a skills que \"nunca disparam\" ou disparam na hora errada.",
+            "",
+            "## Scripts e recursos empacotados",
+            "",
+            "Skills podem **agrupar scripts** (ex.: um utilitário que manipula PDFs) e recursos. Em vez de o Claude reimplementar a lógica a cada vez, a skill instrui o Claude a **executar** o script — combinando o raciocínio do modelo com código determinístico e confiável.",
+            "",
+            "> Leitura oficial: https://docs.anthropic.com/en/docs/agents-and-tools/agent-skills/overview",
+          ].join("\n"),
+          flashcards: [
+            {
+              front: "O que é progressive disclosure em Agent Skills?",
+              back: "Carregar informação em camadas: sempre só name+description; ao ativar, o corpo do SKILL.md; sob demanda, scripts/recursos referenciados. Mantém o contexto enxuto.",
+              tags: ["skills"],
+            },
+            {
+              front: "O que está sempre carregado no contexto sobre as skills disponíveis?",
+              back: "Apenas o name e a description de cada skill (poucos tokens) — funcionam como um índice.",
+              tags: ["skills"],
+            },
+            {
+              front: "Como uma skill é ativada?",
+              back: "Automaticamente, com base na tarefa: o Claude compara o pedido com as descriptions e ativa a que melhor casa. O usuário não precisa digitar o nome do arquivo.",
+              tags: ["skills"],
+            },
+            {
+              front: "Por que empacotar scripts numa skill?",
+              back: "Para o Claude executar código determinístico e confiável em vez de reimplementar a lógica a cada vez, combinando raciocínio do modelo com automação.",
+              tags: ["skills"],
+            },
+          ],
+          questions: [
+            {
+              prompt: "No modelo de progressive disclosure, o que está SEMPRE carregado no contexto?",
+              options: [
+                "O corpo inteiro de cada SKILL.md",
+                "Apenas o name e a description de cada skill",
+                "Todos os scripts de todas as skills",
+                "Nada relacionado a skills",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Sempre carregado é apenas name + description (o índice). O corpo e os recursos entram sob demanda.",
+              difficulty: 2,
+              tags: ["skills"],
+            },
+            {
+              prompt: "Qual é a principal vantagem da progressive disclosure?",
+              options: [
+                "Tornar as respostas determinísticas",
+                "Manter o uso de tokens enxuto, permitindo muitas skills sem sobrecarregar o contexto",
+                "Criptografar as skills",
+                "Dispensar o frontmatter",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Carregar em camadas evita poluir o contexto, então é possível ter muitas skills instaladas economizando tokens.",
+              difficulty: 1,
+              tags: ["skills"],
+            },
+            {
+              prompt: "Como o Claude decide invocar uma skill?",
+              options: [
+                "O usuário precisa digitar o caminho do SKILL.md",
+                "Automaticamente, comparando a tarefa com as descriptions das skills",
+                "Aleatoriamente",
+                "Sempre invoca todas as skills",
+              ],
+              correctIndex: 1,
+              explanation:
+                "A ativação é automática e baseada na tarefa: a description que melhor casa com o pedido faz a skill ser ativada.",
+              difficulty: 1,
+              tags: ["skills"],
+            },
+            {
+              prompt: "Por que uma skill empacotaria um script (ex.: para manipular PDFs) em vez de só instruções?",
+              options: [
+                "Para aumentar o número de tokens carregados",
+                "Para o Claude executar lógica determinística e confiável em vez de reimplementá-la a cada vez",
+                "Porque scripts substituem o SKILL.md",
+                "Porque o frontmatter exige um script",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Empacotar scripts permite combinar o raciocínio do modelo com código confiável e repetível, evitando reimplementações ad hoc.",
+              difficulty: 2,
+              tags: ["skills"],
+            },
+          ],
+          labs: [
+            {
+              title: "Projete as camadas de uma skill",
+              promptMd: [
+                "# Lab: Projete as camadas de uma skill",
+                "",
+                "Você vai criar uma skill `pdf-tools` para extrair tabelas de PDFs.",
+                "",
+                "Descreva como aplicar progressive disclosure:",
+                "1. O que vai no frontmatter (name/description) — pensando em ativação.",
+                "2. O que vai no corpo do SKILL.md.",
+                "3. Que script/recurso você empacotaria e quando o Claude o carregaria.",
+                "4. Explique por que isso economiza contexto.",
+              ].join("\n"),
+              rubric: [
+                "Define name e uma description com gatilhos claros (camada sempre carregada)",
+                "Coloca instruções/procedimentos no corpo do SKILL.md (carregado ao ativar)",
+                "Empacota um script (ex.: extrator de tabelas) carregado sob demanda",
+                "Explica que carregar em camadas mantém o contexto enxuto",
+              ],
+              modelAnswer: [
+                "1. **Frontmatter**: `name: pdf-tools`; `description: Extrai tabelas e texto de arquivos PDF. Use quando o usuário pedir para ler, extrair ou converter dados de um PDF.` — gatilhos garantem ativação certa; é a única camada sempre no contexto.",
+                "2. **Corpo do SKILL.md**: passos para identificar tabelas, lidar com PDFs digitalizados, formato de saída esperado — lido quando a skill é ativada.",
+                "3. **Script empacotado**: um `extract_tables.py`; o SKILL.md instrui o Claude a executá-lo apenas quando há um PDF a processar (sob demanda).",
+                "4. Como só name+description ficam sempre carregados, e corpo/script entram quando necessários, o contexto permanece pequeno mesmo com muitas skills instaladas.",
+              ].join("\n"),
+            },
+          ],
+        },
+      ],
+    },
+
+    // =====================================================================
+    // MÓDULO 4 — CLAUDE CODE
+    // =====================================================================
+    {
+      title: "Claude Code",
+      lessons: [
+        {
+          title: "Ferramentas e permissões",
+          readingMd: [
+            "# Ferramentas e permissões",
+            "",
+            "O **Claude Code** é o agente de linha de comando da Anthropic para tarefas de engenharia de software: ele lê e edita arquivos, roda comandos, pesquisa o código e executa tarefas multi-passo no seu terminal e IDE.",
+            "",
+            "## Ferramentas (tools)",
+            "",
+            "O Claude Code trabalha com um conjunto de **ferramentas nativas**, como: ler arquivos, editar/escrever arquivos, buscar conteúdo (grep/glob), executar comandos de shell (Bash) e buscar na web. O agente decide quais ferramentas usar para cumprir o pedido.",
+            "",
+            "## Sistema de permissões",
+            "",
+            "Como essas ações podem ser sensíveis (editar código, rodar comandos), o Claude Code tem um **sistema de permissões**:",
+            "",
+            "- Ações de **leitura** costumam ser seguras e automáticas.",
+            "- Ações de **escrita** e **execução** podem **pedir aprovação** antes de rodar.",
+            "- Você define **regras de permissão** (allow/ask/deny) — por exemplo, permitir certos comandos sempre, perguntar em outros, e bloquear os perigosos.",
+            "- Há modos de operação que ajustam o quanto o agente pergunta, sempre respeitando as regras configuradas.",
+            "",
+            "Essas regras vivem na **configuração** do Claude Code (arquivos de settings, com escopos de usuário e de projeto). O princípio é dar autonomia ao agente sem abrir mão do controle humano sobre ações arriscadas.",
+            "",
+            "> Leitura oficial: https://docs.anthropic.com/en/docs/claude-code/overview",
+          ].join("\n"),
+          flashcards: [
+            {
+              front: "O que é o Claude Code?",
+              back: "O agente de linha de comando da Anthropic para engenharia de software: lê/edita arquivos, roda comandos, pesquisa o código e executa tarefas multi-passo no terminal/IDE.",
+              tags: ["claude-code"],
+            },
+            {
+              front: "Cite ferramentas nativas do Claude Code.",
+              back: "Ler arquivos, editar/escrever arquivos, buscar conteúdo (grep/glob), executar comandos de shell (Bash) e buscar na web.",
+              tags: ["claude-code"],
+            },
+            {
+              front: "Como o Claude Code trata ações sensíveis como editar arquivos ou rodar comandos?",
+              back: "Com um sistema de permissões: ações de escrita/execução podem pedir aprovação conforme regras allow/ask/deny configuradas.",
+              tags: ["claude-code"],
+            },
+            {
+              front: "Onde ficam as regras de permissão do Claude Code?",
+              back: "Nos arquivos de configuração (settings), com escopos de usuário e de projeto.",
+              tags: ["claude-code"],
+            },
+          ],
+          questions: [
+            {
+              prompt: "O Claude Code é melhor descrito como:",
+              options: [
+                "Uma IDE gráfica",
+                "Um agente de linha de comando para engenharia de software",
+                "Um modelo de embeddings",
+                "Um banco de dados",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Claude Code é o agente de CLI para tarefas de engenharia: ler/editar arquivos, rodar comandos e tarefas multi-passo.",
+              difficulty: 1,
+              tags: ["claude-code"],
+            },
+            {
+              prompt: "Como o Claude Code lida com uma ação potencialmente sensível, como rodar um comando de shell?",
+              options: [
+                "Executa tudo silenciosamente",
+                "Pode pedir aprovação conforme as regras de permissão configuradas",
+                "Só funciona em modo somente-leitura",
+                "Exige reiniciar a máquina",
+              ],
+              correctIndex: 1,
+              explanation:
+                "O sistema de permissões (allow/ask/deny) governa ações sensíveis; muitas exigem aprovação humana antes de executar.",
+              difficulty: 2,
+              tags: ["claude-code"],
+            },
+            {
+              prompt: "Quais tipos de regra um sistema de permissões do Claude Code tipicamente oferece?",
+              options: [
+                "start/stop/pause",
+                "allow/ask/deny",
+                "read/compile/link",
+                "open/close/save",
+              ],
+              correctIndex: 1,
+              explanation:
+                "As regras de permissão classificam ações em allow (permitir), ask (perguntar) e deny (bloquear).",
+              difficulty: 2,
+              tags: ["claude-code"],
+            },
+            {
+              prompt: "Qual conjunto descreve ferramentas nativas do Claude Code?",
+              options: [
+                "Renderização 3D e edição de vídeo",
+                "Ler/editar arquivos, buscar no código, executar comandos de shell",
+                "Treinar modelos e ajustar hiperparâmetros",
+                "Enviar e-mails de marketing",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Suas ferramentas nativas são voltadas a engenharia: leitura/edição de arquivos, busca no código e execução de comandos.",
+              difficulty: 1,
+              tags: ["claude-code"],
+            },
+          ],
+          labs: [
+            {
+              title: "Defina uma política de permissões",
+              promptMd: [
+                "# Lab: Defina uma política de permissões",
+                "",
+                "Para um projeto de produção, proponha uma política de permissões para o Claude Code que equilibre autonomia e segurança.",
+                "",
+                "1. Liste 2 ações que você deixaria em **allow** (automáticas).",
+                "2. Liste 2 ações que ficariam em **ask** (pedir aprovação).",
+                "3. Liste 1 ação em **deny** (bloqueada).",
+                "4. Justifique com base no risco de cada uma.",
+              ].join("\n"),
+              rubric: [
+                "Indica ações de leitura/baixo risco em allow",
+                "Coloca ações de escrita/execução de risco médio em ask",
+                "Bloqueia (deny) uma ação claramente perigosa",
+                "Justifica as escolhas pelo nível de risco",
+              ],
+              modelAnswer: [
+                "1. **allow**: ler arquivos; rodar a suíte de testes (`npm test`). Baixo risco, alta utilidade.",
+                "2. **ask**: editar arquivos do código; executar comandos de instalação (`npm install`). Risco médio — convém revisar antes.",
+                "3. **deny**: comandos destrutivos como `rm -rf` ou `git push --force` para o branch principal.",
+                "4. A política dá autonomia em ações seguras (leitura/testes), mantém revisão humana em mudanças relevantes e bloqueia o que pode causar perda irreversível.",
+              ].join("\n"),
+            },
+          ],
+        },
+        {
+          title: "Integração com MCP, skills, slash commands e hooks",
+          readingMd: [
+            "# Integração com MCP, skills, slash commands e hooks",
+            "",
+            "O Claude Code é extensível de várias formas.",
+            "",
+            "## MCP",
+            "",
+            "O Claude Code é um **host MCP**: você pode conectar **servers MCP** para dar a ele acesso a sistemas externos (banco de dados, GitHub, ferramentas internas). Uma vez conectado, as **tools** e **resources** do server ficam disponíveis para o agente, exatamente sob o mesmo sistema de permissões.",
+            "",
+            "## Agent Skills",
+            "",
+            "O Claude Code também usa **Agent Skills**: pastas com `SKILL.md` que ensinam fluxos especializados (revisar PRs, gerar changelog, seguir convenções da empresa). Valem as mesmas regras de progressive disclosure — o Claude ativa a skill quando a tarefa casa com a description.",
+            "",
+            "## Slash commands",
+            "",
+            "**Slash commands** (ex.: `/review`, `/init`) são atalhos para prompts/fluxos pré-definidos. Você pode criar comandos personalizados (arquivos Markdown na pasta de comandos do projeto/usuário) para padronizar tarefas recorrentes do time.",
+            "",
+            "## CLAUDE.md e hooks",
+            "",
+            "- **`CLAUDE.md`** — arquivo no repositório onde você registra **instruções de projeto**: convenções de código, comandos de teste/lint, arquitetura, o que evitar. O Claude Code lê esse arquivo e passa a segui-lo.",
+            "- **Hooks** — *scripts* disparados em eventos do ciclo do agente (por exemplo, antes/depois de usar uma ferramenta, ao finalizar). Servem para automações determinísticas: rodar um formatter após edições, bloquear um comando, registrar logs. Diferente do julgamento do modelo, hooks executam **sempre** que o evento ocorre.",
+            "",
+            "> Leitura oficial: https://docs.anthropic.com/en/docs/claude-code/mcp e https://docs.anthropic.com/en/docs/claude-code/hooks",
+          ].join("\n"),
+          flashcards: [
+            {
+              front: "Como o Claude Code se conecta a sistemas externos?",
+              back: "Como host MCP: você conecta servers MCP, e suas tools/resources ficam disponíveis ao agente sob o mesmo sistema de permissões.",
+              tags: ["claude-code", "mcp"],
+            },
+            {
+              front: "Para que serve o arquivo CLAUDE.md?",
+              back: "Registrar instruções de projeto (convenções de código, comandos de teste/lint, arquitetura, o que evitar) que o Claude Code lê e passa a seguir.",
+              tags: ["claude-code"],
+            },
+            {
+              front: "O que são hooks no Claude Code e como diferem do julgamento do modelo?",
+              back: "Scripts disparados em eventos do ciclo do agente (ex.: antes/depois de uma ferramenta). Executam SEMPRE que o evento ocorre — automação determinística, não decisão do modelo.",
+              tags: ["claude-code"],
+            },
+            {
+              front: "O que são slash commands no Claude Code?",
+              back: "Atalhos para prompts/fluxos pré-definidos (ex.: /review, /init); você pode criar comandos personalizados em Markdown para padronizar tarefas do time.",
+              tags: ["claude-code"],
+            },
+          ],
+          questions: [
+            {
+              prompt: "Qual mecanismo permite estender o Claude Code com integrações externas (banco, GitHub etc.)?",
+              options: [
+                "Plugins .exe",
+                "Conectar servers MCP (o Claude Code atua como host MCP)",
+                "Macros do editor",
+                "Cookies do navegador",
+              ],
+              correctIndex: 1,
+              explanation:
+                "O Claude Code é um host MCP: conectar servers MCP disponibiliza suas tools/resources ao agente, sob o mesmo sistema de permissões.",
+              difficulty: 2,
+              tags: ["claude-code", "mcp"],
+            },
+            {
+              prompt: "Onde se registram convenções e instruções de projeto que o Claude Code deve seguir?",
+              options: ["Num arquivo CLAUDE.md", "No .gitignore", "No package-lock.json", "Num cookie"],
+              correctIndex: 0,
+              explanation:
+                "O CLAUDE.md documenta convenções, comandos e arquitetura do projeto; o Claude Code o lê e segue.",
+              difficulty: 1,
+              tags: ["claude-code"],
+            },
+            {
+              prompt: "Qual a diferença essencial entre um hook e o uso normal de uma ferramenta pelo modelo?",
+              options: [
+                "Hooks são decididos pelo modelo caso a caso",
+                "Hooks executam deterministicamente sempre que o evento associado ocorre",
+                "Hooks só funcionam na nuvem",
+                "Não há diferença",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Hooks são scripts ligados a eventos do ciclo do agente; rodam sempre que o evento acontece, independentemente do julgamento do modelo.",
+              difficulty: 2,
+              tags: ["claude-code"],
+            },
+            {
+              prompt: "O que é um slash command no Claude Code?",
+              options: [
+                "Um comando do sistema operacional",
+                "Um atalho para um prompt/fluxo pré-definido, que pode ser personalizado",
+                "Uma variável de ambiente",
+                "Um tipo de hook obrigatório",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Slash commands (ex.: /review) são atalhos para fluxos pré-definidos e podem ser criados sob medida para o time.",
+              difficulty: 1,
+              tags: ["claude-code"],
+            },
+          ],
+          labs: [
+            {
+              title: "Estenda o Claude Code para o seu time",
+              promptMd: [
+                "# Lab: Estenda o Claude Code para o seu time",
+                "",
+                "Seu time quer padronizar como o Claude Code trabalha no repositório. Descreva como você usaria:",
+                "",
+                "1. **CLAUDE.md** — que instruções de projeto registrar.",
+                "2. **MCP** — uma integração externa útil e o que ela habilitaria.",
+                "3. **Slash command** ou **skill** — para padronizar uma tarefa recorrente.",
+                "4. **Hook** — uma automação determinística (e em qual evento dispararia).",
+              ].join("\n"),
+              rubric: [
+                "Registra convenções/comandos no CLAUDE.md",
+                "Conecta um server MCP e explica o que ele habilita",
+                "Cria um slash command ou skill para uma tarefa recorrente",
+                "Define um hook determinístico associado a um evento (ex.: formatar após editar)",
+              ],
+              modelAnswer: [
+                "1. **CLAUDE.md**: estilo de código, comando de testes (`npm test`), lint, estrutura de pastas e o que NÃO mexer (ex.: migrations).",
+                "2. **MCP**: conectar um server MCP do GitHub — habilita abrir PRs, ler issues e revisar diffs direto pelo agente, sob o sistema de permissões.",
+                "3. **Skill/slash command**: uma skill `pr-review` (ou `/review`) que padroniza o checklist de revisão de PR do time.",
+                "4. **Hook**: um hook pós-edição que roda o formatter (`prettier`/`eslint --fix`) sempre que um arquivo é alterado, garantindo estilo consistente sem depender do julgamento do modelo.",
+              ].join("\n"),
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
