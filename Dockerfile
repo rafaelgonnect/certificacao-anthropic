@@ -28,5 +28,5 @@ COPY --from=backend /app/backend/prisma ./prisma
 # frontend buildado vira os estáticos servidos pelo backend
 COPY --from=frontend /app/frontend/dist ./public
 EXPOSE 3001
-# aplica migrações e sobe a API
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+# sincroniza o schema no banco (greenfield, sem arquivos de migração) e sobe a API
+CMD ["sh", "-c", "npx prisma db push --skip-generate --accept-data-loss && node dist/index.js"]

@@ -1,0 +1,37 @@
+import express from "express";
+import cors from "cors";
+import path from "node:path";
+import { authRoutes } from "./auth/routes.js";
+import { contentRoutes } from "./content/routes.js";
+export function createApp() {
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
+  app.get("/health", (_req, res) => res.json({ ok: true }));
+  app.use("/auth", authRoutes);
+  app.use("/api/auth", authRoutes);
+  app.use("/api", contentRoutes);
+  app.use("/", contentRoutes);
+  if (process.env.NODE_ENV === "production") {
+    const publicDir = path.resolve(process.cwd(), "public");
+    app.use(express.static(publicDir));
+    // SPA fallback: serve index.html para rotas não-API; deixa /api/* cair no 404 abaixo.
+    app.get("*", (req, res, next) => {
+      if (req.path.startsWith("/api")) return next();
+      res.sendFile(path.join(publicDir, "index.html"));
+    });
+  }
+
+  // 404 para rotas de API não encontradas
+  app.use("/api", (_req, res) => res.status(404).json({ error: "not found" }));
+
+  // Handler de erro global: erros não tratados viram 500 limpo (não derrubam o request)
+  app.use(
+    (err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+      console.error(err);
+      res.status(500).json({ error: "internal error" });
+    }
+  );
+
+  return app;
+}
