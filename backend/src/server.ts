@@ -5,6 +5,7 @@ import { authRoutes } from "./auth/routes.js";
 import { contentRoutes } from "./content/routes.js";
 import { learningRoutes } from "./learning/routes.js";
 import { examRoutes } from "./learning/examRoutes.js";
+import { labRoutes } from "./learning/labRoutes.js";
 import { adminRoutes } from "./admin/routes.js";
 export function createApp() {
   const app = express();
@@ -19,6 +20,8 @@ export function createApp() {
   app.use("/", contentRoutes);
   app.use("/api", examRoutes);
   app.use("/", examRoutes);
+  app.use("/api", labRoutes);
+  app.use("/", labRoutes);
   app.use("/api", adminRoutes);
   app.use("/", adminRoutes);
   if (process.env.NODE_ENV === "production") {
