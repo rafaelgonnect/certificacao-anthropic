@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  aluno
+  gestor
+  admin
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(aluno)
+  createdAt    DateTime @default(now())
+}
+
+model Certification {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  description String
+  version     Int      @default(1)
+  modules     Module[]
+  createdAt   DateTime @default(now())
+}
+
+model Module {
+  id      String        @id @default(uuid())
+  cert    Certification @relation(fields: [certId], references: [id], onDelete: Cascade)
+  certId  String
+  order   Int
+  title   String
+  lessons Lesson[]
+}
+
+model Lesson {
+  id        String @id @default(uuid())
+  module    Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  moduleId  String
+  order     Int
+  title     String
+  readingMd String
+}
