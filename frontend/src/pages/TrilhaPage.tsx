@@ -14,6 +14,10 @@ export function TrilhaPage() {
   if (!data) return null;
   return (
     <main>
+      <nav>
+        <Link to="/revisoes">Revisões de hoje</Link>{" · "}
+        <Link to="/quiz">Praticar (quiz)</Link>
+      </nav>
       <h1>{data.title}</h1>
       {data.modules.map((m) => (
         <section key={m.id}>
