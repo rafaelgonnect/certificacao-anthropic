@@ -458,6 +458,7 @@ export function requireRole(...roles: TokenPayload["role"][]) {
 ```ts
 import express from "express";
 import cors from "cors";
+import path from "node:path";
 import { authRoutes } from "./auth/routes.js";
 import { contentRoutes } from "./content/routes.js";
 
@@ -467,10 +468,23 @@ export function createApp() {
   app.use(express.json());
   app.get("/health", (_req, res) => res.json({ ok: true }));
   app.use("/auth", authRoutes);
+  app.use("/api/auth", authRoutes); // mesmo handler sob /api (proxy/prod)
   app.use("/", contentRoutes);
+  app.use("/api", contentRoutes);
+
+  // Em produção, serve o frontend buildado (copiado para ./public no Dockerfile).
+  if (process.env.NODE_ENV === "production") {
+    const publicDir = path.resolve(process.cwd(), "public");
+    app.use(express.static(publicDir));
+    app.get("*", (_req, res) => res.sendFile(path.join(publicDir, "index.html")));
+  }
   return app;
 }
 ```
+
+Nota: montar as rotas também sob `/api` evita depender do `rewrite` do proxy do
+Vite e faz o mesmo backend funcionar igual em dev e em produção. O catch-all `*`
+do SPA fica DEPOIS das rotas de API para não capturá-las.
 
 - [ ] **Step 3: Implementar `backend/src/index.ts`**
 
