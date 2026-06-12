@@ -14,8 +14,8 @@ export function createApp() {
   app.get("/health", (_req, res) => res.json({ ok: true }));
   app.use("/auth", authRoutes);
   app.use("/api/auth", authRoutes);
-  app.use("/api/learning", learningRoutes);
-  app.use("/learning", learningRoutes);
+  app.use("/api", learningRoutes);
+  app.use("/", learningRoutes);
   app.use("/api", contentRoutes);
   app.use("/", contentRoutes);
   app.use("/api", examRoutes);
