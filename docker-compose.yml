@@ -1,7 +1,8 @@
-# Compose de deploy no Easypanel (nome padrão docker-compose.yml). NÃO use localmente.
-# No Easypanel: criar um serviço do tipo "Compose" apontando para este repositório
-# e este arquivo. Definir as variáveis JWT_SECRET e POSTGRES_PASSWORD nas
-# Environment Variables do serviço.
+# Compose de deploy no Easypanel — basta COLAR este YAML no serviço Compose e rodar.
+# A imagem do app é buildada no GitHub Actions e publicada no GHCR (não precisa de
+# código-fonte no Easypanel). Definir JWT_SECRET e POSTGRES_PASSWORD nas
+# Environment Variables do serviço. Se a imagem do GHCR for privada, configurar as
+# credenciais do registry no Easypanel (ou tornar o package público).
 services:
   postgres:
     image: postgres:16-alpine
@@ -14,9 +15,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/rafaelgonnect/certificacao-anthropic:latest
     restart: unless-stopped
     depends_on:
       - postgres
