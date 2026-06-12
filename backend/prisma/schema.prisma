@@ -19,6 +19,8 @@ model User {
   passwordHash String
   name         String
   role         Role     @default(aluno)
+  reviews      ReviewState[]
+  attempts     Attempt[]
   createdAt    DateTime @default(now())
 }
 
@@ -42,10 +44,64 @@ model Module {
 }
 
 model Lesson {
-  id        String @id @default(uuid())
-  module    Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  moduleId  String
-  order     Int
-  title     String
-  readingMd String
+  id         String @id @default(uuid())
+  module     Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  moduleId   String
+  order      Int
+  title      String
+  readingMd  String
+  flashcards Flashcard[]
+  questions  Question[]
+}
+
+model Flashcard {
+  id        String   @id @default(uuid())
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId  String
+  front     String
+  back      String
+  tags      String[]
+  reviews   ReviewState[]
+  createdAt DateTime @default(now())
+}
+
+model Question {
+  id           String   @id @default(uuid())
+  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId     String
+  prompt       String
+  options      String[]
+  correctIndex Int
+  explanation  String
+  difficulty   Int      @default(1)
+  tags         String[]
+  attempts     Attempt[]
+  createdAt    DateTime @default(now())
+}
+
+model ReviewState {
+  id           String    @id @default(uuid())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  flashcard    Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
+  flashcardId  String
+  ease         Float     @default(2.5)
+  intervalDays Int       @default(0)
+  reps         Int       @default(0)
+  lapses       Int       @default(0)
+  dueAt        DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([userId, flashcardId])
+}
+
+model Attempt {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId  String
+  chosenIndex Int
+  correct     Boolean
+  createdAt   DateTime @default(now())
 }
