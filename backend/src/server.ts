@@ -15,7 +15,23 @@ export function createApp() {
   if (process.env.NODE_ENV === "production") {
     const publicDir = path.resolve(process.cwd(), "public");
     app.use(express.static(publicDir));
-    app.get("*", (_req, res) => res.sendFile(path.join(publicDir, "index.html")));
+    // SPA fallback: serve index.html para rotas não-API; deixa /api/* cair no 404 abaixo.
+    app.get("*", (req, res, next) => {
+      if (req.path.startsWith("/api")) return next();
+      res.sendFile(path.join(publicDir, "index.html"));
+    });
   }
+
+  // 404 para rotas de API não encontradas
+  app.use("/api", (_req, res) => res.status(404).json({ error: "not found" }));
+
+  // Handler de erro global: erros não tratados viram 500 limpo (não derrubam o request)
+  app.use(
+    (err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+      console.error(err);
+      res.status(500).json({ error: "internal error" });
+    }
+  );
+
   return app;
 }
