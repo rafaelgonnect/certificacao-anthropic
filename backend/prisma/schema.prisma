@@ -53,6 +53,18 @@ model Lesson {
   readingMd  String
   flashcards Flashcard[]
   questions  Question[]
+  labs       Lab[]
+}
+
+model Lab {
+  id          String   @id @default(uuid())
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId    String
+  title       String
+  promptMd    String
+  rubric      String[]
+  modelAnswer String
+  createdAt   DateTime @default(now())
 }
 
 model Flashcard {
