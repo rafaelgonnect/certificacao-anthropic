@@ -3,6 +3,7 @@ import cors from "cors";
 import path from "node:path";
 import { authRoutes } from "./auth/routes.js";
 import { contentRoutes } from "./content/routes.js";
+import { learningRoutes } from "./learning/routes.js";
 export function createApp() {
   const app = express();
   app.use(cors());
@@ -10,6 +11,8 @@ export function createApp() {
   app.get("/health", (_req, res) => res.json({ ok: true }));
   app.use("/auth", authRoutes);
   app.use("/api/auth", authRoutes);
+  app.use("/api/learning", learningRoutes);
+  app.use("/learning", learningRoutes);
   app.use("/api", contentRoutes);
   app.use("/", contentRoutes);
   if (process.env.NODE_ENV === "production") {
