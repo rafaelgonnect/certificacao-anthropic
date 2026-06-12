@@ -1,0 +1,31 @@
+# Compose para deploy no Easypanel (NÃO é para uso local).
+# No Easypanel: criar um serviço do tipo "Compose" apontando para este repositório
+# e este arquivo. Definir as variáveis JWT_SECRET e POSTGRES_PASSWORD nas
+# Environment Variables do serviço.
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-certificacao}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-certificacao}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-easypanel}
+      PORT: 3001
+    ports:
+      - "3001:3001"
+
+volumes:
+  pgdata:
