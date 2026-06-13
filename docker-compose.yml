@@ -1,8 +1,7 @@
-# Compose de deploy no Easypanel — basta COLAR este YAML no serviço Compose e rodar.
-# A imagem do app é buildada no GitHub Actions e publicada no GHCR (não precisa de
-# código-fonte no Easypanel). Definir JWT_SECRET e POSTGRES_PASSWORD nas
-# Environment Variables do serviço. Se a imagem do GHCR for privada, configurar as
-# credenciais do registry no Easypanel (ou tornar o package público).
+# Compose de deploy no Easypanel — serviço Compose CONECTADO a este repositório
+# (Source = GitHub rafaelgonnect/certificacao-anthropic, branch master). O Easypanel
+# clona o repo e builda o Dockerfile. Definir JWT_SECRET e POSTGRES_PASSWORD nas
+# Environment Variables do serviço.
 services:
   postgres:
     image: postgres:16-alpine
@@ -15,7 +14,9 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   app:
-    image: ghcr.io/rafaelgonnect/certificacao-anthropic:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
       - postgres
