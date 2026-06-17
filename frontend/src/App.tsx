@@ -1,6 +1,8 @@
 import { Routes, Route } from "react-router-dom";
+import { type ReactNode } from "react";
 import { AuthProvider } from "./auth/AuthContext.js";
 import { ProtectedRoute } from "./components/ProtectedRoute.js";
+import { AppShell } from "./components/AppShell.js";
 import { LoginPage } from "./pages/LoginPage.js";
 import { TrilhaPage } from "./pages/TrilhaPage.js";
 import { LessonPage } from "./pages/LessonPage.js";
@@ -9,18 +11,28 @@ import { ReviewsPage } from "./pages/ReviewsPage.js";
 import { QuizPage } from "./pages/QuizPage.js";
 import { ExamPage } from "./pages/ExamPage.js";
 import { GestorDashboard } from "./pages/GestorDashboard.js";
+
+/** Rota protegida com a casca visual (header da marca) aplicada. */
+function shell(element: ReactNode) {
+  return (
+    <ProtectedRoute>
+      <AppShell>{element}</AppShell>
+    </ProtectedRoute>
+  );
+}
+
 export function App() {
   return (
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<ProtectedRoute><TrilhaPage /></ProtectedRoute>} />
-        <Route path="/licao/:id" element={<ProtectedRoute><LessonPage /></ProtectedRoute>} />
-        <Route path="/lab/:id" element={<ProtectedRoute><LabPage /></ProtectedRoute>} />
-        <Route path="/revisoes" element={<ProtectedRoute><ReviewsPage /></ProtectedRoute>} />
-        <Route path="/quiz" element={<ProtectedRoute><QuizPage /></ProtectedRoute>} />
-        <Route path="/simulado" element={<ProtectedRoute><ExamPage /></ProtectedRoute>} />
-        <Route path="/gestor" element={<ProtectedRoute><GestorDashboard /></ProtectedRoute>} />
+        <Route path="/" element={shell(<TrilhaPage />)} />
+        <Route path="/licao/:id" element={shell(<LessonPage />)} />
+        <Route path="/lab/:id" element={shell(<LabPage />)} />
+        <Route path="/revisoes" element={shell(<ReviewsPage />)} />
+        <Route path="/quiz" element={shell(<QuizPage />)} />
+        <Route path="/simulado" element={shell(<ExamPage />)} />
+        <Route path="/gestor" element={shell(<GestorDashboard />)} />
       </Routes>
     </AuthProvider>
   );
