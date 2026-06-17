@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api, getToken, setToken } from "../api/client.js";
-type User = { id: string; email: string; name: string; role: string };
+type User = { id: string; email: string; name: string; role: string; onboarded: boolean };
 type AuthState = {
   user: User | null;
   initializing: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  markOnboarded: () => void;
 };
 const Ctx = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -40,9 +41,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(res.token);
     setUser(res.user);
   }
-  function logout() { setToken(null); setUser(null); }
+  function logout() {
+    setToken(null);
+    setUser(null);
+  }
+  function markOnboarded() {
+    setUser((u) => (u ? { ...u, onboarded: true } : u));
+  }
   return (
-    <Ctx.Provider value={{ user, initializing, login, logout }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ user, initializing, login, logout, markOnboarded }}>
+      {children}
+    </Ctx.Provider>
   );
 }
 export function useAuth() {

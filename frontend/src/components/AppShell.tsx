@@ -9,6 +9,7 @@ import {
   IconChart,
   IconLogout,
   IconRocket,
+  IconUsers,
 } from "./icons.js";
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
@@ -61,6 +62,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               <NavLink to="/gestor" className={navClass}>
                 <IconChart />
                 <span>Painel do gestor</span>
+              </NavLink>
+              <NavLink to="/admin/usuarios" className={navClass}>
+                <IconUsers />
+                <span>Usuários</span>
               </NavLink>
             </>
           )}

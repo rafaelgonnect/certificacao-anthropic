@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext.js";
 
 export function LoginPage() {
@@ -17,8 +17,11 @@ export function LoginPage() {
     try {
       await login(email, password);
       navigate("/");
-    } catch {
-      setError("Credenciais inválidas");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      // mensagens vindas do backend (aguardando aprovação / bloqueada) são exibidas;
+      // erros de credencial caem no texto genérico.
+      setError(/aguardando|bloquead/i.test(msg) ? msg : "Credenciais inválidas");
     } finally {
       setBusy(false);
     }
@@ -64,7 +67,9 @@ export function LoginPage() {
 
         {error && <p role="alert">{error}</p>}
 
-        <p className="hint">Plataforma de certificações da Colaborativa</p>
+        <p className="hint">
+          Não tem conta? <Link to="/cadastro">Criar conta</Link>
+        </p>
       </form>
     </div>
   );

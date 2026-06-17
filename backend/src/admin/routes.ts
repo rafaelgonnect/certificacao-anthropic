@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { z } from "zod";
 import { prisma } from "../db.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
 import { computeMastery, type AttemptLite, type MasteryMap } from "../learning/mastery.js";
@@ -8,6 +9,30 @@ export const adminRoutes = Router();
 // Painel do gestor: autenticado e restrito a gestor/admin
 adminRoutes.use(requireAuth);
 adminRoutes.use(requireRole("gestor", "admin"));
+
+// GET /admin/users → lista de usuários (pendentes primeiro) para aprovação
+adminRoutes.get("/admin/users", async (_req, res) => {
+  const users = await prisma.user.findMany({
+    select: { id: true, name: true, email: true, role: true, status: true, createdAt: true },
+    orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+  });
+  res.json(users);
+});
+
+// PATCH /admin/users/:id/status → libera/bloqueia uma conta
+const statusSchema = z.object({ status: z.enum(["pending", "active", "blocked"]) });
+adminRoutes.patch("/admin/users/:id/status", async (req, res) => {
+  const parsed = statusSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "invalid body" });
+  const user = await prisma.user.findUnique({ where: { id: req.params.id } });
+  if (!user) return res.status(404).json({ error: "not found" });
+  const updated = await prisma.user.update({
+    where: { id: req.params.id },
+    data: { status: parsed.data.status },
+    select: { id: true, name: true, email: true, role: true, status: true, createdAt: true },
+  });
+  res.json(updated);
+});
 
 // GET /admin/overview → visão da turma (alunos): tentativas, média dos simulados e domínio por tema
 adminRoutes.get("/admin/overview", async (_req, res) => {

@@ -1504,6 +1504,173 @@ tbody tr:hover td {
   color: var(--green-700);
 }
 
+/* ── Pia, a calopsita mascote ──────────────────────────────────────────── */
+.pia {
+  display: block;
+  overflow: visible;
+}
+.pia .pia-body {
+  animation: pia-bob 3.2s ease-in-out infinite;
+}
+.pia.cheer .pia-body {
+  animation: pia-cheer 0.75s ease-in-out infinite;
+}
+.pia .crest {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: pia-crest 2.6s ease-in-out infinite;
+}
+.pia .eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pia-blink 4.5s ease-in-out infinite;
+}
+.pia.talk .beak-lower {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: pia-talk 0.28s ease-in-out infinite;
+}
+.pia .wing {
+  transform-box: fill-box;
+}
+.pia .wing-l {
+  transform-origin: 100% 12%;
+}
+.pia .wing-r {
+  transform-origin: 0% 12%;
+}
+.pia.cheer .wing-l {
+  animation: pia-flap-l 0.4s ease-in-out infinite;
+}
+.pia.cheer .wing-r {
+  animation: pia-flap-r 0.4s ease-in-out infinite;
+}
+@keyframes pia-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes pia-cheer {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-16px); }
+  55% { transform: translateY(0); }
+  70% { transform: translateY(-6px); }
+}
+@keyframes pia-crest {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(6deg); }
+}
+@keyframes pia-blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+@keyframes pia-talk {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(2px) scaleY(0.5); }
+}
+@keyframes pia-flap-l {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(-26deg); }
+}
+@keyframes pia-flap-r {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(26deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pia * { animation: none !important; }
+}
+
+/* ── Onboarding (estilo Duolingo) ──────────────────────────────────────── */
+.onb {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background: radial-gradient(1100px 600px at 50% -10%, var(--green-50), transparent 60%), var(--bg);
+}
+.onb-dots {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+.onb-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--border-2);
+  transition: all 0.2s var(--ease);
+}
+.onb-dot.on {
+  background: var(--green);
+  width: 26px;
+  border-radius: 999px;
+}
+.onb-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.onb-bubble {
+  position: relative;
+  max-width: 460px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-2);
+  padding: 1.3rem 1.5rem;
+  margin-top: -0.5rem;
+  animation: onb-pop 0.35s var(--ease);
+}
+.onb-bubble::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 18px;
+  height: 18px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+}
+.onb-bubble h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.25rem;
+}
+.onb-bubble p {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 1.02rem;
+}
+@keyframes onb-pop {
+  0% { transform: translateY(8px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.onb-actions {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+/* ── Tela de aprovação / usuários ──────────────────────────────────────── */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+.status-pill.pending { background: var(--warn-50); color: #9a5e12; }
+.status-pill.active { background: var(--green-100); color: var(--green-700); }
+.status-pill.blocked { background: var(--danger-50); color: #9c2a22; }
+.row-actions { display: flex; gap: 0.4rem; }
+
 /* ── Responsivo ────────────────────────────────────────────────────────── */
 @media (max-width: 860px) {
   .layout {

@@ -14,12 +14,20 @@ enum Role {
   admin
 }
 
+enum UserStatus {
+  pending
+  active
+  blocked
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
   passwordHash String
   name         String
-  role         Role     @default(aluno)
+  role         Role       @default(aluno)
+  status       UserStatus @default(active)
+  onboardedAt  DateTime?
   reviews      ReviewState[]
   attempts     Attempt[]
   examSessions ExamSession[]
