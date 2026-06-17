@@ -751,7 +751,7 @@ main,
 /* labs práticos (opcionais) — visual próprio, distinto das lições, para não
    competir com a navegação "Próxima lição". */
 .lab-block {
-  margin-top: 1.6rem;
+  margin-top: 2.6rem;
   border: 1.5px solid var(--blue-100, var(--border-2));
   background: var(--blue-50);
   border-radius: var(--r-xl);

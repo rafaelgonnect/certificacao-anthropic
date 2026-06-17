@@ -86,27 +86,7 @@ export function LessonPage() {
         <Prose>{data.readingMd}</Prose>
       </article>
 
-      {labs && labs.length > 0 && (
-        <section className="lab-block" aria-label="Labs práticos opcionais">
-          <div className="lab-block-head">
-            <span className="lab-ico" aria-hidden="true">🧪</span>
-            <div>
-              <h2>Pratique o que aprendeu</h2>
-              <p>Exercícios opcionais com feedback. Não são obrigatórios para seguir para a próxima lição.</p>
-            </div>
-          </div>
-          <div className="lab-cards">
-            {labs.map((lab) => (
-              <Link key={lab.id} to={`/lab/${lab.id}`} className="lab-card">
-                <span className="lab-card-tag">Lab opcional</span>
-                <span className="lab-card-ttl">{lab.title}</span>
-                <span className="lab-card-cta">Fazer este lab →</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
+      {/* Navegação é a ação principal: vem logo após a leitura. */}
       <nav className="lesson-nav" aria-label="Navegação entre lições">
         {data.prev ? (
           <Link to={`/licao/${data.prev.id}`} className="lnav lnav-prev">
@@ -128,6 +108,29 @@ export function LessonPage() {
           </Link>
         )}
       </nav>
+
+      {/* Labs ficam abaixo da navegação, claramente separados, e só a partir da
+          2ª lição — sugerir prática prática logo na 1ª lição é cedo demais. */}
+      {data.position > 1 && labs && labs.length > 0 && (
+        <section className="lab-block" aria-label="Labs práticos opcionais">
+          <div className="lab-block-head">
+            <span className="lab-ico" aria-hidden="true">🧪</span>
+            <div>
+              <h2>Quer praticar mais? (opcional)</h2>
+              <p>Exercícios de aplicação com feedback. Totalmente opcionais — faça quando se sentir à vontade.</p>
+            </div>
+          </div>
+          <div className="lab-cards">
+            {labs.map((lab) => (
+              <Link key={lab.id} to={`/lab/${lab.id}`} className="lab-card">
+                <span className="lab-card-tag">Lab opcional</span>
+                <span className="lab-card-ttl">{lab.title}</span>
+                <span className="lab-card-cta">Abrir lab</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
