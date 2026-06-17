@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../api/client.js";
 import { Prose } from "../components/Prose.js";
 import { IconBack } from "../components/icons.js";
@@ -17,6 +17,7 @@ type LabFeedback = {
 
 export function LabPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [submission, setSubmission] = useState("");
 
   const { data, isLoading, error } = useQuery({
@@ -41,10 +42,13 @@ export function LabPage() {
 
   return (
     <main>
-      <Link to="/" className="back-link"><IconBack className="" /> Voltar à trilha</Link>
+      <button type="button" className="back-link back-link-btn" onClick={() => navigate(-1)}>
+        <IconBack className="" /> Voltar à lição
+      </button>
       <div className="page-head">
-        <div className="eyebrow">Lab prático</div>
+        <div className="eyebrow">Lab prático · opcional</div>
         <h1>{data.title}</h1>
+        <p>Exercício de aplicação com feedback. Escreva sua solução e envie para receber uma avaliação.</p>
       </div>
 
       <article className="reading"><Prose>{data.promptMd}</Prose></article>

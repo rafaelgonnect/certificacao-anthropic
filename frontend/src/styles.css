@@ -386,6 +386,16 @@ main,
   color: var(--blue);
   text-decoration: none;
 }
+.back-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: none;
+}
 .page-head {
   margin-bottom: 1.6rem;
 }
@@ -737,6 +747,56 @@ main,
   gap: 1rem;
   flex-wrap: wrap;
 }
+
+/* labs práticos (opcionais) — visual próprio, distinto das lições, para não
+   competir com a navegação "Próxima lição". */
+.lab-block {
+  margin-top: 1.6rem;
+  border: 1.5px solid var(--blue-100, var(--border-2));
+  background: var(--blue-50);
+  border-radius: var(--r-xl);
+  padding: 1rem 1.1rem;
+}
+.lab-block-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-bottom: 0.9rem;
+}
+.lab-ico {
+  font-size: 1.4rem;
+  line-height: 1.4;
+  flex: 0 0 auto;
+}
+.lab-block-head h2 { margin: 0; font-size: 1.05rem; }
+.lab-block-head p { margin: 0.15rem 0 0; font-size: 0.86rem; color: var(--ink-2); }
+.lab-cards { display: grid; gap: 0.6rem; }
+.lab-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--surface);
+  border: 1.5px solid var(--blue-100, var(--border-2));
+  border-radius: var(--r);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color 0.14s var(--ease), box-shadow 0.14s var(--ease);
+}
+.lab-card:hover { border-color: var(--blue); box-shadow: var(--sh-1); }
+.lab-card-tag {
+  align-self: flex-start;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--blue);
+  background: var(--blue-50);
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+}
+.lab-card-ttl { font-weight: 700; font-size: 0.96rem; }
+.lab-card-cta { font-size: 0.84rem; font-weight: 600; color: var(--blue); }
 
 /* navegação entre lições (rodapé) */
 .lesson-nav {

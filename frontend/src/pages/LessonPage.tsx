@@ -4,7 +4,7 @@ import { useParams, useSearchParams, Link } from "react-router-dom";
 import { api } from "../api/client.js";
 import { Prose } from "../components/Prose.js";
 import { CoachTip } from "../components/CoachTip.js";
-import { IconBack, IconChevron } from "../components/icons.js";
+import { IconBack } from "../components/icons.js";
 
 type NeighborLesson = { id: string; title: string };
 type Lesson = {
@@ -87,23 +87,24 @@ export function LessonPage() {
       </article>
 
       {labs && labs.length > 0 && (
-        <div className="module" style={{ marginTop: "1.4rem" }}>
-          <div className="module-head">
-            <span className="module-num" aria-hidden="true">🧪</span>
-            <h2>Labs práticos</h2>
-            <span className="count">{labs.length}</span>
+        <section className="lab-block" aria-label="Labs práticos opcionais">
+          <div className="lab-block-head">
+            <span className="lab-ico" aria-hidden="true">🧪</span>
+            <div>
+              <h2>Pratique o que aprendeu</h2>
+              <p>Exercícios opcionais com feedback. Não são obrigatórios para seguir para a próxima lição.</p>
+            </div>
           </div>
-          <ul className="lesson-list">
+          <div className="lab-cards">
             {labs.map((lab) => (
-              <li key={lab.id}>
-                <Link to={`/lab/${lab.id}`} className="lesson-row">
-                  <span className="ttl">Lab: {lab.title}</span>
-                  <IconChevron className="chev" />
-                </Link>
-              </li>
+              <Link key={lab.id} to={`/lab/${lab.id}`} className="lab-card">
+                <span className="lab-card-tag">Lab opcional</span>
+                <span className="lab-card-ttl">{lab.title}</span>
+                <span className="lab-card-cta">Fazer este lab →</span>
+              </Link>
             ))}
-          </ul>
-        </div>
+          </div>
+        </section>
       )}
 
       <nav className="lesson-nav" aria-label="Navegação entre lições">
