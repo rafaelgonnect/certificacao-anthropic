@@ -1608,6 +1608,7 @@ tbody tr:hover td {
   text-align: center;
   background: radial-gradient(1100px 600px at 50% -10%, var(--green-50), transparent 60%), var(--bg);
 }
+.onb:focus { outline: none; }
 .onb-dots {
   display: flex;
   gap: 0.5rem;
