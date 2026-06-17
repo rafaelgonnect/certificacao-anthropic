@@ -16,7 +16,7 @@ export const aiFluency: CertificationPack = {
   title: "AI Fluency: Framework & Foundations (Anthropic Academy)",
   description:
     "Trilha oficial da Anthropic Academy sobre fluência em IA: como colaborar com sistemas de IA de forma eficaz, ética e segura, usando o framework dos 4 Ds (Delegation, Description, Discernment, Diligence).",
-  version: 1,
+  version: 2,
   modules: [
     // =====================================================================
     // MÓDULO 1 — FUNDAMENTOS DA FLUÊNCIA EM IA
@@ -290,6 +290,15 @@ export const aiFluency: CertificationPack = {
             "## Como os 4 Ds se encaixam",
             "",
             "Pense em uma colaboração com um **profissional muito capaz, mas que não te conhece**. Você precisa: decidir o que pedir (Delegation), explicar bem o pedido (Description), revisar criticamente a entrega (Discernment) e usar o resultado com responsabilidade (Diligence). Os 4 Ds tornam esse instinto explícito e treinável.",
+            "",
+            "```mermaid",
+            "flowchart LR",
+            "  D1[\"Delegation<br/>o que delegar\"] --> D2[\"Description<br/>descrever bem\"]",
+            "  D2 --> D3[\"Discernment<br/>avaliar a entrega\"]",
+            "  D3 -->|refinar| D2",
+            "  D3 --> D4[\"Diligence<br/>usar com responsabilidade\"]",
+            "  D4 -.aprendizado.-> D1",
+            "```",
             "",
             "## Não é estritamente linear",
             "",

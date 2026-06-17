@@ -715,6 +715,19 @@ main,
   font-weight: 600;
   text-decoration: underline;
 }
+/* diagramas Mermaid (autorais) dentro das lições/labs */
+.mermaid-fig {
+  display: block;
+  margin: 1.2rem auto;
+  text-align: center;
+  overflow-x: auto;
+}
+.mermaid-fig svg { max-width: 100%; height: auto; }
+.reading pre:has(.mermaid-fig) {
+  background: none;
+  border: none;
+  padding: 0;
+}
 .read-progress {
   position: sticky;
   top: 0;
