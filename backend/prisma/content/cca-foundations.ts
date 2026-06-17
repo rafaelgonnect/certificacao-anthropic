@@ -15,7 +15,7 @@ export const ccaFoundations: CertificationPack = {
   title: "Claude Certified Architect – Foundations",
   description:
     "Fundamentos para construir aplicações de produção com Claude: a Claude API (Messages, tool use, streaming, prompt caching), o Model Context Protocol (MCP), Agent Skills e o Claude Code.",
-  version: 3,
+  version: 4,
   modules: [
     // =====================================================================
     // MÓDULO 1 — CLAUDE API
