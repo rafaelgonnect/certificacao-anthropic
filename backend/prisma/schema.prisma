@@ -28,6 +28,9 @@ model User {
   role         Role       @default(aluno)
   status       UserStatus @default(active)
   onboardedAt  DateTime?
+  targetCertSlug  String?
+  experienceLevel String?
+  dailyGoalMin    Int?
   reviews      ReviewState[]
   attempts     Attempt[]
   examSessions ExamSession[]

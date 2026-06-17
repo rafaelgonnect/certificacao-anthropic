@@ -53,6 +53,35 @@ describe("auth routes", () => {
     expect(me2.body.onboarded).toBe(true);
   });
 
+  it("salva o perfil do onboarding e marca como concluído", async () => {
+    await request(app)
+      .post("/auth/register")
+      .send({ email: "c@c.com", password: "segredo123", name: "Caio" });
+    await prisma.user.update({ where: { email: "c@c.com" }, data: { status: "active" } });
+    const login = await request(app)
+      .post("/auth/login")
+      .send({ email: "c@c.com", password: "segredo123" });
+    const token = login.body.token as string;
+
+    const onb = await request(app)
+      .post("/auth/onboarding")
+      .set("authorization", `Bearer ${token}`)
+      .send({
+        targetCertSlug: "cca-foundations",
+        experienceLevel: "iniciante",
+        dailyGoalMin: 10,
+        startupName: "Caio AI",
+      });
+    expect(onb.status).toBe(200);
+    expect(onb.body.onboarded).toBe(true);
+    expect(onb.body.targetCertSlug).toBe("cca-foundations");
+    expect(onb.body.dailyGoalMin).toBe(10);
+
+    const me = await request(app).get("/auth/me").set("authorization", `Bearer ${token}`);
+    expect(me.body.onboarded).toBe(true);
+    expect(me.body.experienceLevel).toBe("iniciante");
+  });
+
   it("rejeita login com senha errada", async () => {
     await request(app)
       .post("/auth/register")

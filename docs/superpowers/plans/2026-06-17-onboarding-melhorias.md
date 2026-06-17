@@ -50,7 +50,7 @@ frontend/
 **Files:**
 - Modify: `backend/prisma/schema.prisma`
 
-- [ ] **Step 1: Adicionar campos ao model `User`**
+- [x] **Step 1: Adicionar campos ao model `User`**
 
 No bloco `model User`, logo após `onboardedAt  DateTime?`, adicione:
 
@@ -60,12 +60,12 @@ No bloco `model User`, logo após `onboardedAt  DateTime?`, adicione:
   dailyGoalMin    Int?
 ```
 
-- [ ] **Step 2: Regenerar o Prisma Client**
+- [x] **Step 2: Regenerar o Prisma Client**
 
 Run: `cd backend && npx prisma generate`
 Expected: "Generated Prisma Client" sem erro (os tipos passam a incluir os novos campos).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add backend/prisma/schema.prisma
@@ -80,7 +80,7 @@ git commit -m "feat(onboarding): campos de perfil (targetCert/experiencia/meta) 
 - Modify: `backend/src/auth/routes.ts`
 - Test: `backend/tests/auth.test.ts`
 
-- [ ] **Step 1: Escrever o teste falhando** (adicione um novo `it` dentro do `describe("auth routes", ...)` em `backend/tests/auth.test.ts`)
+- [x] **Step 1: Escrever o teste falhando** (adicione um novo `it` dentro do `describe("auth routes", ...)` em `backend/tests/auth.test.ts`)
 
 ```ts
   it("salva o perfil do onboarding e marca como concluído", async () => {
@@ -113,12 +113,12 @@ git commit -m "feat(onboarding): campos de perfil (targetCert/experiencia/meta) 
   });
 ```
 
-- [ ] **Step 2: Rodar e ver falhar** (requer Postgres de teste)
+- [x] **Step 2: Rodar e ver falhar** (requer Postgres de teste)
 
 Run: `cd backend && npm test -- auth`
 Expected: FAIL — rota `/auth/onboarding` retorna 404.
 
-- [ ] **Step 3: Atualizar `publicUser` para incluir o perfil**
+- [x] **Step 3: Atualizar `publicUser` para incluir o perfil**
 
 Em `backend/src/auth/routes.ts`, substitua a função `publicUser` por:
 
@@ -148,7 +148,7 @@ function publicUser(u: {
 
 (`login` e `/me` já chamam `publicUser` com o registro completo do `prisma.user`, então passam a expor os novos campos automaticamente.)
 
-- [ ] **Step 4: Implementar o endpoint** (adicione ao final de `backend/src/auth/routes.ts`, antes do `export` final se houver, ou logo após o handler `/onboarded`)
+- [x] **Step 4: Implementar o endpoint** (adicione ao final de `backend/src/auth/routes.ts`, antes do `export` final se houver, ou logo após o handler `/onboarded`)
 
 ```ts
 const onboardingSchema = z.object({
@@ -181,12 +181,12 @@ authRoutes.post("/onboarding", requireAuth, async (req, res) => {
 });
 ```
 
-- [ ] **Step 5: Rodar e ver passar**
+- [x] **Step 5: Rodar e ver passar**
 
 Run: `cd backend && npm test -- auth`
 Expected: PASS (incluindo o novo teste).
 
-- [ ] **Step 6: Build e commit**
+- [x] **Step 6: Build e commit**
 
 Run: `cd backend && npm run build` (deve compilar limpo)
 
@@ -204,7 +204,7 @@ git commit -m "feat(onboarding): POST /auth/onboarding salva perfil + nomeia sta
 - Modify: `frontend/src/styles.css`
 - Test: `frontend/src/tests/Cockatiel.test.tsx` (criar)
 
-- [ ] **Step 1: Escrever o teste falhando** (`frontend/src/tests/Cockatiel.test.tsx`)
+- [x] **Step 1: Escrever o teste falhando** (`frontend/src/tests/Cockatiel.test.tsx`)
 
 ```tsx
 import { describe, it, expect } from "vitest";
@@ -220,12 +220,12 @@ describe("Cockatiel", () => {
 });
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `cd frontend && npm test -- Cockatiel`
 Expected: FAIL — tipo `"wave"` não é aceito pelo prop `mood` (erro de tipos no build/teste).
 
-- [ ] **Step 3: Ampliar o tipo `mood`** em `frontend/src/components/Cockatiel.tsx`
+- [x] **Step 3: Ampliar o tipo `mood`** em `frontend/src/components/Cockatiel.tsx`
 
 Troque a assinatura do prop:
 
@@ -238,7 +238,7 @@ Troque a assinatura do prop:
 }) {
 ```
 
-- [ ] **Step 4: Adicionar as animações dos novos moods** em `frontend/src/styles.css`, logo após o bloco `@keyframes pia-flap-r { ... }`:
+- [x] **Step 4: Adicionar as animações dos novos moods** em `frontend/src/styles.css`, logo após o bloco `@keyframes pia-flap-r { ... }`:
 
 ```css
 /* mood: wave — levanta e balança a asa direita */
@@ -260,12 +260,12 @@ Troque a assinatura do prop:
 }
 ```
 
-- [ ] **Step 5: Rodar e ver passar**
+- [x] **Step 5: Rodar e ver passar**
 
 Run: `cd frontend && npm test -- Cockatiel`
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/src/components/Cockatiel.tsx frontend/src/styles.css frontend/src/tests/Cockatiel.test.tsx
@@ -280,7 +280,7 @@ git commit -m "feat(onboarding): moods wave e think para a Pia"
 - Create: `frontend/src/onboarding/types.ts`
 - Create: `frontend/src/onboarding/steps.ts`
 
-- [ ] **Step 1: Criar `frontend/src/onboarding/types.ts`**
+- [x] **Step 1: Criar `frontend/src/onboarding/types.ts`**
 
 ```ts
 export type Mood = "idle" | "talk" | "cheer" | "wave" | "think";
@@ -314,7 +314,7 @@ export type CelebrateStep = Base & { kind: "celebrate" };
 export type Step = InfoStep | ChoiceStep | InputStep | SampleStep | CelebrateStep;
 ```
 
-- [ ] **Step 2: Criar `frontend/src/onboarding/steps.ts`**
+- [x] **Step 2: Criar `frontend/src/onboarding/steps.ts`**
 
 ```ts
 import type { Step } from "./types.js";
@@ -389,7 +389,7 @@ export const STEPS: Step[] = [
 ];
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/onboarding/types.ts frontend/src/onboarding/steps.ts
@@ -405,7 +405,7 @@ git commit -m "feat(onboarding): tipos e definição declarativa dos passos"
 - Create: `frontend/src/onboarding/steps/ChoiceStep.tsx`
 - Create: `frontend/src/onboarding/steps/InputStep.tsx`
 
-- [ ] **Step 1: Criar `InfoStep.tsx`**
+- [x] **Step 1: Criar `InfoStep.tsx`**
 
 ```tsx
 import type { InfoStep as T } from "../types.js";
@@ -420,7 +420,7 @@ export function InfoStep({ step }: { step: T }) {
 }
 ```
 
-- [ ] **Step 2: Criar `ChoiceStep.tsx`** (suporta opções estáticas e dinâmicas via `/certifications`)
+- [x] **Step 2: Criar `ChoiceStep.tsx`** (suporta opções estáticas e dinâmicas via `/certifications`)
 
 ```tsx
 import { useQuery } from "@tanstack/react-query";
@@ -475,7 +475,7 @@ export function ChoiceStep({
 }
 ```
 
-- [ ] **Step 3: Criar `InputStep.tsx`**
+- [x] **Step 3: Criar `InputStep.tsx`**
 
 ```tsx
 import type { InputStep as T } from "../types.js";
@@ -505,7 +505,7 @@ export function InputStep({
 }
 ```
 
-- [ ] **Step 4: Adicionar estilos** em `frontend/src/styles.css` (após o bloco `.onb-bubble p { ... }`)
+- [x] **Step 4: Adicionar estilos** em `frontend/src/styles.css` (após o bloco `.onb-bubble p { ... }`)
 
 ```css
 .onb-bubble-wide { max-width: 540px; }
@@ -531,7 +531,7 @@ export function InputStep({
 .onb-input { margin-top: 1rem; text-align: center; font-size: 1.05rem; }
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/onboarding/steps/ frontend/src/styles.css
@@ -545,7 +545,7 @@ git commit -m "feat(onboarding): renderers Info, Choice e Input"
 **Files:**
 - Create: `frontend/src/onboarding/steps/SampleStep.tsx`
 
-- [ ] **Step 1: Criar `SampleStep.tsx`** (busca 1 questão da cert escolhida; ao responder, revela explicação e avisa o pai se acertou via `onResult` para a Pia reagir)
+- [x] **Step 1: Criar `SampleStep.tsx`** (busca 1 questão da cert escolhida; ao responder, revela explicação e avisa o pai se acertou via `onResult` para a Pia reagir)
 
 ```tsx
 import { useState } from "react";
@@ -629,14 +629,14 @@ export function SampleStep({
 }
 ```
 
-- [ ] **Step 2: Adicionar estados de acerto/erro** em `frontend/src/styles.css` (reuso visual): após `.onb-choice.is-on`:
+- [x] **Step 2: Adicionar estados de acerto/erro** em `frontend/src/styles.css` (reuso visual): após `.onb-choice.is-on`:
 
 ```css
 .onb-choice.is-correct { border-color: var(--success); background: var(--success-50); }
 .onb-choice.is-wrong { border-color: var(--danger); background: var(--danger-50); }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/onboarding/steps/SampleStep.tsx frontend/src/styles.css
@@ -653,7 +653,7 @@ git commit -m "feat(onboarding): passo de degustação com questão real"
 - Modify: `frontend/src/auth/AuthContext.tsx`
 - Test: `frontend/src/tests/OnboardingEngine.test.tsx`
 
-- [ ] **Step 1: Estender o `AuthContext`** para guardar o perfil retornado. Em `frontend/src/auth/AuthContext.tsx`:
+- [x] **Step 1: Estender o `AuthContext`** para guardar o perfil retornado. Em `frontend/src/auth/AuthContext.tsx`:
 
 Troque o tipo `User`:
 
@@ -680,7 +680,7 @@ E troque `markOnboarded` por um setter que mescla o usuário retornado:
 
 No tipo `AuthState` e no `value` do Provider, substitua `markOnboarded: () => void;` por `setUserData: (u: Partial<User>) => void;` (e remova a função `markOnboarded`).
 
-- [ ] **Step 2: Escrever o teste do motor** (`frontend/src/tests/OnboardingEngine.test.tsx`)
+- [x] **Step 2: Escrever o teste do motor** (`frontend/src/tests/OnboardingEngine.test.tsx`)
 
 ```tsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -717,12 +717,12 @@ describe("OnboardingEngine", () => {
 });
 ```
 
-- [ ] **Step 3: Rodar e ver falhar**
+- [x] **Step 3: Rodar e ver falhar**
 
 Run: `cd frontend && npm test -- OnboardingEngine`
 Expected: FAIL — módulo `OnboardingEngine` não existe.
 
-- [ ] **Step 4: Criar `frontend/src/onboarding/OnboardingEngine.tsx`**
+- [x] **Step 4: Criar `frontend/src/onboarding/OnboardingEngine.tsx`**
 
 ```tsx
 import { useState, type CSSProperties } from "react";
@@ -845,7 +845,7 @@ export function OnboardingEngine() {
 }
 ```
 
-- [ ] **Step 5: Simplificar `frontend/src/pages/OnboardingPage.tsx`** para apenas montar o motor
+- [x] **Step 5: Simplificar `frontend/src/pages/OnboardingPage.tsx`** para apenas montar o motor
 
 ```tsx
 import { OnboardingEngine } from "../onboarding/OnboardingEngine.js";
@@ -855,12 +855,12 @@ export function OnboardingPage() {
 }
 ```
 
-- [ ] **Step 6: Rodar e ver passar**
+- [x] **Step 6: Rodar e ver passar**
 
 Run: `cd frontend && npm test -- OnboardingEngine`
 Expected: PASS.
 
-- [ ] **Step 7: Build e commit**
+- [x] **Step 7: Build e commit**
 
 Run: `cd frontend && npm run build` (deve compilar limpo)
 
@@ -877,7 +877,7 @@ git commit -m "feat(onboarding): motor de passos personalizado + integração co
 - Modify: `frontend/src/onboarding/OnboardingEngine.tsx`
 - Modify: `frontend/src/styles.css`
 
-- [ ] **Step 1: Enter avança** — em `OnboardingEngine`, adicione um handler no contêiner raiz `.onb`:
+- [x] **Step 1: Enter avança** — em `OnboardingEngine`, adicione um handler no contêiner raiz `.onb`:
 
 ```tsx
     <div
@@ -889,19 +889,19 @@ git commit -m "feat(onboarding): motor de passos personalizado + integração co
     >
 ```
 
-- [ ] **Step 2: aria-live na fala da Pia** — envolva o bloco do passo (`<div key={i}>`) com `aria-live="polite"`:
+- [x] **Step 2: aria-live na fala da Pia** — envolva o bloco do passo (`<div key={i}>`) com `aria-live="polite"`:
 
 ```tsx
         <div key={i} aria-live="polite">
 ```
 
-- [ ] **Step 3: Transição de entrada** — em `frontend/src/styles.css`, garanta que `.onb-bubble` já tem `animation: onb-pop ...` (existe). Adicione foco visível removido do contêiner:
+- [x] **Step 3: Transição de entrada** — em `frontend/src/styles.css`, garanta que `.onb-bubble` já tem `animation: onb-pop ...` (existe). Adicione foco visível removido do contêiner:
 
 ```css
 .onb:focus { outline: none; }
 ```
 
-- [ ] **Step 4: Build e commit**
+- [x] **Step 4: Build e commit**
 
 Run: `cd frontend && npm run build`
 
@@ -914,17 +914,17 @@ git commit -m "feat(onboarding): teclado (Enter), aria-live e foco"
 
 ## Task 9: Verificação final + deploy
 
-- [ ] **Step 1: Backend — build + unit**
+- [x] **Step 1: Backend — build + unit**
 
 Run: `cd backend && npm run build && npm run test:unit`
 Expected: build limpo; todos os testes unitários passam.
 
-- [ ] **Step 2: Frontend — build + testes**
+- [x] **Step 2: Frontend — build + testes**
 
 Run: `cd frontend && npm run build && npm test`
 Expected: build limpo; todos os testes passam.
 
-- [ ] **Step 3: Push (dispara CI/registro) e deploy**
+- [x] **Step 3: Push (dispara CI/registro) e deploy**
 
 ```bash
 git push origin master
@@ -936,7 +936,7 @@ curl -X POST "<DEPLOY_WEBHOOK_URL>"
 ```
 > A URL do webhook de deploy está guardada na memória local do projeto (`easypanel-deploy-hook.md`). Se não tiver acesso, peça ao operador para disparar o redeploy.
 
-- [ ] **Step 4: Verificação manual (browser)**
+- [x] **Step 4: Verificação manual (browser)**
 
 1. Crie uma conta em `/cadastro`, aprove-a em `/admin/usuarios` (como admin).
 2. Faça login com a nova conta → deve cair em `/bem-vindo`.

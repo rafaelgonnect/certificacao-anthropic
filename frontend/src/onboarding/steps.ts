@@ -1,0 +1,70 @@
+import type { Step } from "./types.js";
+
+export const STEPS: Step[] = [
+  {
+    id: "intro",
+    kind: "info",
+    mood: "wave",
+    title: "Oi! Eu sou a Pia 🦜",
+    text: "Vou ser sua mentora aqui na Colaborativa. Vamos montar seu plano em 1 minuto?",
+  },
+  {
+    id: "cert",
+    kind: "choice",
+    field: "targetCertSlug",
+    source: "certs",
+    mood: "talk",
+    title: "Qual certificação é seu foco?",
+    text: "Posso recomendar outras depois — comece pela que mais te interessa.",
+  },
+  {
+    id: "experiencia",
+    kind: "choice",
+    field: "experienceLevel",
+    mood: "think",
+    title: "Como é sua experiência com o Claude?",
+    options: [
+      { value: "iniciante", label: "Iniciante", desc: "Estou começando agora" },
+      { value: "intermediario", label: "Intermediário", desc: "Já uso o Claude/IA" },
+      { value: "avancado", label: "Avançado", desc: "Construo com a API" },
+    ],
+  },
+  {
+    id: "meta",
+    kind: "choice",
+    field: "dailyGoalMin",
+    mood: "talk",
+    title: "Quanto tempo por dia?",
+    text: "Definir uma meta diária ajuda a manter a ofensiva 🔥",
+    options: [
+      { value: "5", label: "5 min", desc: "Casual" },
+      { value: "10", label: "10 min", desc: "Regular" },
+      { value: "15", label: "15 min", desc: "Sério" },
+      { value: "20", label: "20 min", desc: "Intenso" },
+    ],
+  },
+  {
+    id: "startup",
+    kind: "input",
+    field: "startupName",
+    mood: "talk",
+    title: "Dê um nome à sua startup de IA 🚀",
+    text: "Enquanto estuda, você constrói uma empresa. Como ela vai se chamar?",
+    placeholder: "Ex.: NeuraLabs",
+    prefillFromName: true,
+  },
+  {
+    id: "sample",
+    kind: "sample",
+    mood: "think",
+    title: "Bora uma primeira questão?",
+    text: "Sem pressão — é só pra você sentir como funciona.",
+  },
+  {
+    id: "fim",
+    kind: "celebrate",
+    mood: "cheer",
+    title: "Tudo pronto! 🎉",
+    text: "Sua jornada começa agora. Eu vou estar por aqui torcendo por você!",
+  },
+];

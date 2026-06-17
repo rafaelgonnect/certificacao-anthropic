@@ -14,8 +14,20 @@ function publicUser(u: {
   name: string;
   role: string;
   onboardedAt: Date | null;
+  targetCertSlug: string | null;
+  experienceLevel: string | null;
+  dailyGoalMin: number | null;
 }) {
-  return { id: u.id, email: u.email, name: u.name, role: u.role, onboarded: u.onboardedAt !== null };
+  return {
+    id: u.id,
+    email: u.email,
+    name: u.name,
+    role: u.role,
+    onboarded: u.onboardedAt !== null,
+    targetCertSlug: u.targetCertSlug,
+    experienceLevel: u.experienceLevel,
+    dailyGoalMin: u.dailyGoalMin,
+  };
 }
 
 const registerSchema = z.object({
@@ -69,4 +81,33 @@ authRoutes.get("/me", requireAuth, async (req, res) => {
 authRoutes.post("/onboarded", requireAuth, async (req, res) => {
   await prisma.user.update({ where: { id: req.user!.sub }, data: { onboardedAt: new Date() } });
   res.json({ ok: true });
+});
+
+const onboardingSchema = z.object({
+  targetCertSlug: z.string().min(1).optional(),
+  experienceLevel: z.enum(["iniciante", "intermediario", "avancado"]).optional(),
+  dailyGoalMin: z.number().int().min(1).max(120).optional(),
+  startupName: z.string().min(1).max(40).optional(),
+});
+
+// Conclui o onboarding salvando o perfil; se houver startupName + cert, nomeia a empresa do jogo.
+authRoutes.post("/onboarding", requireAuth, async (req, res) => {
+  const parsed = onboardingSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "invalid body" });
+  const { targetCertSlug, experienceLevel, dailyGoalMin, startupName } = parsed.data;
+
+  const user = await prisma.user.update({
+    where: { id: req.user!.sub },
+    data: { onboardedAt: new Date(), targetCertSlug, experienceLevel, dailyGoalMin },
+  });
+
+  if (startupName && targetCertSlug) {
+    await prisma.company.upsert({
+      where: { userId_certSlug: { userId: user.id, certSlug: targetCertSlug } },
+      update: { name: startupName },
+      create: { userId: user.id, certSlug: targetCertSlug, name: startupName },
+    });
+  }
+
+  res.json(publicUser(user));
 });

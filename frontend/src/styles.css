@@ -1575,6 +1575,23 @@ tbody tr:hover td {
   0%, 100% { transform: rotate(0); }
   50% { transform: rotate(26deg); }
 }
+/* mood: wave — levanta e balança a asa direita */
+.pia.wave .wing-r {
+  transform-origin: 0% 12%;
+  animation: pia-wave 0.7s ease-in-out infinite;
+}
+@keyframes pia-wave {
+  0%, 100% { transform: rotate(8deg); }
+  50% { transform: rotate(40deg); }
+}
+/* mood: think — inclina levemente a cabeça (corpo) e segura o topete */
+.pia.think .pia-body {
+  animation: pia-think 3s ease-in-out infinite;
+}
+@keyframes pia-think {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(-5deg) translateY(-2px); }
+}
 @media (prefers-reduced-motion: reduce) {
   .pia * { animation: none !important; }
 }
@@ -1591,6 +1608,7 @@ tbody tr:hover td {
   text-align: center;
   background: radial-gradient(1100px 600px at 50% -10%, var(--green-50), transparent 60%), var(--bg);
 }
+.onb:focus { outline: none; }
 .onb-dots {
   display: flex;
   gap: 0.5rem;
@@ -1645,6 +1663,29 @@ tbody tr:hover td {
   color: var(--ink-2);
   font-size: 1.02rem;
 }
+.onb-bubble-wide { max-width: 540px; }
+.onb-choices { display: grid; gap: 0.6rem; margin-top: 1rem; text-align: left; }
+.onb-choice {
+  background: var(--surface);
+  border: 1.5px solid var(--border-2);
+  border-radius: var(--r);
+  padding: 0.8rem 1rem;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  transition: border-color 0.14s var(--ease), background 0.14s var(--ease);
+  box-shadow: none;
+}
+.onb-choice:hover { border-color: var(--green); background: var(--green-50); }
+.onb-choice.is-on { border-color: var(--green); background: var(--green-100); }
+.onb-choice.is-correct { border-color: var(--success); background: var(--success-50); }
+.onb-choice.is-wrong { border-color: var(--danger); background: var(--danger-50); }
+.onb-choice-label { font-weight: 700; }
+.onb-choice-desc { font-size: 0.82rem; color: var(--muted); }
+.onb-input { margin-top: 1rem; text-align: center; font-size: 1.05rem; }
 @keyframes onb-pop {
   0% { transform: translateY(8px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }

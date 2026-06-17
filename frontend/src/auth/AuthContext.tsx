@@ -1,12 +1,21 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api, getToken, setToken } from "../api/client.js";
-type User = { id: string; email: string; name: string; role: string; onboarded: boolean };
+type User = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  onboarded: boolean;
+  targetCertSlug?: string | null;
+  experienceLevel?: string | null;
+  dailyGoalMin?: number | null;
+};
 type AuthState = {
   user: User | null;
   initializing: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  markOnboarded: () => void;
+  setUserData: (u: Partial<User>) => void;
 };
 const Ctx = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -45,11 +54,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     setUser(null);
   }
-  function markOnboarded() {
-    setUser((u) => (u ? { ...u, onboarded: true } : u));
+  function setUserData(u: Partial<User>) {
+    setUser((prev) => (prev ? { ...prev, ...u } : prev));
   }
   return (
-    <Ctx.Provider value={{ user, initializing, login, logout, markOnboarded }}>
+    <Ctx.Provider value={{ user, initializing, login, logout, setUserData }}>
       {children}
     </Ctx.Provider>
   );
