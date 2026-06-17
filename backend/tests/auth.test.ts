@@ -80,6 +80,15 @@ describe("auth routes", () => {
     const me = await request(app).get("/auth/me").set("authorization", `Bearer ${token}`);
     expect(me.body.onboarded).toBe(true);
     expect(me.body.experienceLevel).toBe("iniciante");
+
+    // reset volta a marcar como não-onboarded
+    const reset = await request(app)
+      .post("/auth/onboarding/reset")
+      .set("authorization", `Bearer ${token}`);
+    expect(reset.status).toBe(200);
+    expect(reset.body.onboarded).toBe(false);
+    const me2 = await request(app).get("/auth/me").set("authorization", `Bearer ${token}`);
+    expect(me2.body.onboarded).toBe(false);
   });
 
   it("rejeita login com senha errada", async () => {

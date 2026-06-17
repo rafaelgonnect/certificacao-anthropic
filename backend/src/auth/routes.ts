@@ -111,3 +111,12 @@ authRoutes.post("/onboarding", requireAuth, async (req, res) => {
 
   res.json(publicUser(user));
 });
+
+// Reseta o onboarding (volta o usuário para /bem-vindo) — útil para testar o fluxo.
+authRoutes.post("/onboarding/reset", requireAuth, async (req, res) => {
+  const user = await prisma.user.update({
+    where: { id: req.user!.sub },
+    data: { onboardedAt: null },
+  });
+  res.json(publicUser(user));
+});
