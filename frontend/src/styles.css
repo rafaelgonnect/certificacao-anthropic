@@ -499,9 +499,28 @@ main,
   color: var(--green-700);
 }
 .lesson-row .chev {
+  width: 18px;
+  height: 18px;
+  flex: none;
   margin-left: auto;
   color: var(--muted);
   transition: transform 0.13s var(--ease);
+}
+.back-link svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.timer svg {
+  width: 15px;
+  height: 15px;
+}
+.q-ico svg {
+  width: 20px;
+  height: 20px;
+}
+.choice svg {
+  flex: none;
 }
 .lesson-row:hover .chev {
   transform: translateX(3px);
