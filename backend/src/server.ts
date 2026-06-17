@@ -12,6 +12,20 @@ export function createApp() {
   app.use(cors());
   app.use(express.json());
   app.get("/health", (_req, res) => res.json({ ok: true }));
+
+  // Em produção, serve o SPA buildado ANTES das rotas. Sem isso, "/" e demais
+  // paths não-API entrariam nos routers protegidos (requireAuth) e retornariam
+  // 401 {"error":"missing token"} em vez do index.html.
+  if (process.env.NODE_ENV === "production") {
+    const publicDir = path.resolve(process.cwd(), "public");
+    app.use(express.static(publicDir));
+    // SPA fallback: serve index.html para GETs não-API; deixa /api/* seguir para os routers.
+    app.get("*", (req, res, next) => {
+      if (req.path.startsWith("/api")) return next();
+      res.sendFile(path.join(publicDir, "index.html"));
+    });
+  }
+
   app.use("/auth", authRoutes);
   app.use("/api/auth", authRoutes);
   app.use("/api", learningRoutes);
@@ -24,15 +38,6 @@ export function createApp() {
   app.use("/", labRoutes);
   app.use("/api", adminRoutes);
   app.use("/", adminRoutes);
-  if (process.env.NODE_ENV === "production") {
-    const publicDir = path.resolve(process.cwd(), "public");
-    app.use(express.static(publicDir));
-    // SPA fallback: serve index.html para rotas não-API; deixa /api/* cair no 404 abaixo.
-    app.get("*", (req, res, next) => {
-      if (req.path.startsWith("/api")) return next();
-      res.sendFile(path.join(publicDir, "index.html"));
-    });
-  }
 
   // 404 para rotas de API não encontradas
   app.use("/api", (_req, res) => res.status(404).json({ error: "not found" }));
