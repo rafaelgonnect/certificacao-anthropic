@@ -21,8 +21,10 @@ trilha guiada. Inclui (em fases posteriores) um **MCP server** e uma **skill
 backend/    API REST (auth, conteúdo) + Prisma schema + seed
 frontend/   SPA React (login, trilha, leitura de lições)
 Dockerfile  build de produção (backend serve o frontend buildado)
-docker-compose.easypanel.yml   serviços app + postgres no Easypanel
 ```
+
+Deploy: serviço **App** no Easypanel buildado direto do repo via `Dockerfile`,
+com banco externo informado por `DATABASE_URL`. Ver [`DEPLOY.md`](DEPLOY.md).
 
 ## Desenvolvimento local
 
