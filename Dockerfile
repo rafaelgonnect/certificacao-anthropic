@@ -11,6 +11,8 @@ RUN npm run build
 
 # 2) Build do backend -> backend/dist (+ prisma client)
 FROM node:22-alpine AS backend
+# Prisma precisa do OpenSSL para o schema/query engine em Alpine (musl).
+RUN apk add --no-cache openssl
 WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm ci
@@ -19,6 +21,8 @@ RUN npx prisma generate && npm run build
 
 # 3) Runtime
 FROM node:22-alpine
+# Prisma precisa do OpenSSL em runtime (db push / db seed).
+RUN apk add --no-cache openssl
 WORKDIR /app/backend
 ENV NODE_ENV=production
 COPY --from=backend /app/backend/node_modules ./node_modules
