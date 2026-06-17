@@ -1706,30 +1706,50 @@ tbody tr:hover td {
   padding: 0.12rem 0.5rem;
 }
 
-/* opções de questão (degustação): letra em bolinha + texto à esquerda */
-.onb-choice-q {
-  flex-direction: row;
+/* Pia coach (modo guia ?guia=1): balão de orientação no topo do conteúdo */
+.coach {
+  display: flex;
   align-items: center;
-  gap: 0.75rem;
-  text-align: left;
+  gap: 0.6rem;
+  background: var(--green-50);
+  border: 1.5px solid var(--green-100);
+  border-radius: var(--r-xl);
+  padding: 0.7rem 0.9rem 0.7rem 0.4rem;
+  margin-bottom: 1.1rem;
+  animation: onb-pop 0.35s var(--ease);
 }
-.onb-choice-q .onb-choice-label { font-weight: 600; }
-.onb-key {
+.coach .pia { flex: 0 0 auto; }
+.coach-body { display: flex; flex-direction: column; gap: 0.5rem; }
+.coach-body p { margin: 0; color: var(--ink); font-size: 0.96rem; line-height: 1.4; }
+.coach-body .btn-sm { align-self: flex-start; }
+
+/* destaque da primeira lição no modo guia */
+.lesson-row.is-guide-target {
+  border: 1.5px solid var(--green);
+  background: var(--green-50);
+  border-radius: var(--r);
+  animation: guide-pulse 1.6s ease-in-out infinite;
+}
+@keyframes guide-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(106, 168, 79, 0.0); }
+  50% { box-shadow: 0 0 0 5px rgba(106, 168, 79, 0.18); }
+}
+.guide-pill {
   flex: 0 0 auto;
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 1.5px solid var(--border-2);
-  background: var(--surface);
+  font-size: 0.66rem;
   font-weight: 800;
-  font-size: 0.92rem;
-  color: var(--ink-2);
-  transition: border-color 0.14s var(--ease), background 0.14s var(--ease), color 0.14s var(--ease);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--green);
+  background: var(--surface);
+  border: 1px solid var(--green-100);
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+  margin-left: 0.4rem;
 }
-.onb-choice-q.is-correct .onb-key { border-color: var(--success); background: var(--success); color: #fff; }
-.onb-choice-q.is-wrong .onb-key { border-color: var(--danger); background: var(--danger); color: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  .lesson-row.is-guide-target { animation: none; }
+}
 @keyframes onb-pop {
   0% { transform: translateY(8px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }

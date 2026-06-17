@@ -46,10 +46,10 @@ export function SampleStep({
         <p className="state">Preparando…</p>
       ) : (
         <>
-          <p className="q-prompt" style={{ fontSize: "1.05rem", marginTop: "0.8rem" }}>{q.prompt}</p>
-          <div className="onb-choices">
+          <p className="q-prompt" style={{ marginTop: "0.8rem" }}>{q.prompt}</p>
+          <div className="choices">
             {q.options.map((opt, i) => {
-              let cls = "onb-choice onb-choice-q";
+              let cls = "choice";
               if (fb) {
                 if (i === fb.correctIndex) cls += " is-correct";
                 else if (i === chosen) cls += " is-wrong";
@@ -65,17 +65,20 @@ export function SampleStep({
                     answer.mutate(i);
                   }}
                 >
-                  <span className="onb-key" aria-hidden="true">{LETTERS[i]}</span>
-                  <span className="onb-choice-label">{opt}</span>
+                  <span className="key" aria-hidden="true">{LETTERS[i]}</span>
+                  <span>{opt}</span>
                 </button>
               );
             })}
           </div>
           {fb && (
-            <p style={{ marginTop: "0.9rem", color: "var(--ink-2)" }}>
-              <strong>{fb.correct ? "Boa! 🎉 " : "Quase! "}</strong>
-              {fb.explanation}
-            </p>
+            <div className={"feedback " + (fb.correct ? "is-correct" : "is-wrong")}>
+              <div className="verdict">
+                <span aria-hidden="true">{fb.correct ? "✓" : "✗"}</span>
+                <span>{fb.correct ? "Boa! 🎉" : "Quase!"}</span>
+              </div>
+              <p>{fb.explanation}</p>
+            </div>
           )}
         </>
       )}

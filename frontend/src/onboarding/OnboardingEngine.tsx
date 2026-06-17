@@ -4,6 +4,7 @@ import { api } from "../api/client.js";
 import { useAuth } from "../auth/AuthContext.js";
 import { Cockatiel } from "../components/Cockatiel.js";
 import { STEPS } from "./steps.js";
+import { CERT_COPY } from "./certCopy.js";
 import type { Answers, Mood } from "./types.js";
 import { InfoStep } from "./steps/InfoStep.js";
 import { ChoiceStep } from "./steps/ChoiceStep.js";
@@ -46,8 +47,13 @@ export function OnboardingEngine() {
     } catch {
       setUserData({ onboarded: true });
     }
-    navigate(answers.targetCertSlug ? `/trilha/${answers.targetCertSlug}` : "/");
+    // entra na trilha em "modo guia" para a Pia conduzir os primeiros passos
+    navigate(answers.targetCertSlug ? `/trilha/${answers.targetCertSlug}?guia=1` : "/");
   }
+
+  const certName = answers.targetCertSlug
+    ? CERT_COPY[answers.targetCertSlug]?.name ?? "sua trilha"
+    : null;
 
   function next() {
     setReaction(null);
@@ -101,7 +107,16 @@ export function OnboardingEngine() {
               onResult={(correct) => setReaction(correct ? "cheer" : "talk")}
             />
           )}
-          {step.kind === "celebrate" && <InfoStep step={{ ...step, kind: "info" }} />}
+          {step.kind === "celebrate" && (
+            <div className="onb-bubble">
+              <h2>{step.title}</h2>
+              <p>
+                {certName
+                  ? `Seu primeiro passo é a trilha ${certName}. Bora? Vou te levar lá agora e te mostrar exatamente por onde começar — fico do seu lado. 💚`
+                  : step.text}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

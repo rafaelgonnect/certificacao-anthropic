@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api/client.js";
+import { useAuth } from "../auth/AuthContext.js";
+import { CoachTip } from "../components/CoachTip.js";
 import { IconChevron, IconCards, IconQuiz, IconExam, IconBack } from "../components/icons.js";
 
 type Lesson = { id: string; order: number; title: string };
@@ -10,6 +12,9 @@ type Trilha = { title: string; description?: string; modules: Module[] };
 export function TrilhaPage() {
   const params = useParams();
   const slug = params.slug ?? "cca-foundations";
+  const [sp] = useSearchParams();
+  const guia = sp.get("guia") === "1";
+  const { user } = useAuth();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["trilha", slug],
@@ -30,6 +35,18 @@ export function TrilhaPage() {
   if (!data) return null;
 
   const totalLessons = data.modules.reduce((n, m) => n + m.lessons.length, 0);
+  const firstLesson = data.modules.find((m) => m.lessons.length > 0)?.lessons[0];
+
+  const exp = user?.experienceLevel;
+  const extra =
+    exp === "iniciante"
+      ? " Vou com calma com você."
+      : exp === "avancado"
+        ? " Você já tem traquejo, mas todo mundo começa pelos fundamentos. 😉"
+        : "";
+  const coachText = firstLesson
+    ? `Cheguei junto! 🦜 Sua primeira lição é “${firstLesson.title}”. Toca nela ali embaixo (está destacada) pra começar — eu te explico lá dentro.${extra}`
+    : "Cheguei junto! 🦜 Explore a trilha no seu ritmo — qualquer dúvida, é só me chamar.";
 
   return (
     <main>
@@ -39,6 +56,8 @@ export function TrilhaPage() {
         <h1>{data.title}</h1>
         {data.description && <p>{data.description}</p>}
       </div>
+
+      {guia && <CoachTip text={coachText} />}
 
       <div className="quick-grid">
         <Link to="/revisoes" className="quick">
@@ -68,15 +87,22 @@ export function TrilhaPage() {
             <span className="count">{m.lessons.length} {m.lessons.length === 1 ? "lição" : "lições"}</span>
           </div>
           <ul className="lesson-list">
-            {m.lessons.map((l) => (
-              <li key={l.id}>
-                <Link to={`/licao/${l.id}`} className="lesson-row">
-                  <span className="dot" aria-hidden="true">{l.order}</span>
-                  <span className="ttl">{l.title}</span>
-                  <IconChevron className="chev" />
-                </Link>
-              </li>
-            ))}
+            {m.lessons.map((l) => {
+              const isFirst = guia && l.id === firstLesson?.id;
+              return (
+                <li key={l.id}>
+                  <Link
+                    to={isFirst ? `/licao/${l.id}?guia=1` : `/licao/${l.id}`}
+                    className={"lesson-row" + (isFirst ? " is-guide-target" : "")}
+                  >
+                    <span className="dot" aria-hidden="true">{l.order}</span>
+                    <span className="ttl">{l.title}</span>
+                    {isFirst && <span className="guide-pill">Comece aqui</span>}
+                    <IconChevron className="chev" />
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       ))}

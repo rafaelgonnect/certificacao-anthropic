@@ -1,8 +1,9 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import Markdown from "react-markdown";
 import { api } from "../api/client.js";
+import { CoachTip } from "../components/CoachTip.js";
 import { IconBack, IconChevron } from "../components/icons.js";
 
 type Lesson = { id: string; title: string; readingMd: string };
@@ -10,6 +11,8 @@ type LabLink = { id: string; title: string };
 
 export function LessonPage() {
   const { id } = useParams();
+  const [sp] = useSearchParams();
+  const guia = sp.get("guia") === "1";
   const [progress, setProgress] = useState(0);
 
   const { data, isLoading, error } = useQuery({
@@ -56,6 +59,10 @@ export function LessonPage() {
       <Link to="/" className="back-link">
         <IconBack className="" /> Voltar à trilha
       </Link>
+
+      {guia && (
+        <CoachTip text="Essa é sua primeira lição! 🦜 Lê com calma, sem decorar nada. Quando terminar, é só voltar pra trilha e seguir em frente — ou testar no quiz de “Praticar”. Tô aqui com você! 💚" />
+      )}
 
       <article className="reading">
         <Markdown>{data.readingMd}</Markdown>
