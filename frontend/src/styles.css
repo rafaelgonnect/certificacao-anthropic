@@ -711,6 +711,8 @@ main,
   color: inherit;
 }
 .reading a {
+  color: var(--green);
+  font-weight: 600;
   text-decoration: underline;
 }
 .read-progress {

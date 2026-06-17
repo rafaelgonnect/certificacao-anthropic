@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
-import Markdown from "react-markdown";
 import { api } from "../api/client.js";
+import { Prose } from "../components/Prose.js";
 import { IconBack } from "../components/icons.js";
 
 type Lab = { id: string; title: string; promptMd: string; rubric: string[] };
@@ -47,7 +47,7 @@ export function LabPage() {
         <h1>{data.title}</h1>
       </div>
 
-      <article className="reading"><Markdown>{data.promptMd}</Markdown></article>
+      <article className="reading"><Prose>{data.promptMd}</Prose></article>
 
       <div className="card card-pad" style={{ marginTop: "1.2rem" }}>
         <h2>Rubrica de avaliação</h2>
@@ -107,7 +107,7 @@ export function LabPage() {
           )}
 
           <h2 style={{ marginTop: "1.4rem" }}>Resposta-modelo</h2>
-          <article className="reading"><Markdown>{result.modelAnswer}</Markdown></article>
+          <article className="reading"><Prose>{result.modelAnswer}</Prose></article>
         </div>
       )}
     </main>

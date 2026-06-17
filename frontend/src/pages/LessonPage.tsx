@@ -1,8 +1,8 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams, Link } from "react-router-dom";
-import Markdown from "react-markdown";
 import { api } from "../api/client.js";
+import { Prose } from "../components/Prose.js";
 import { CoachTip } from "../components/CoachTip.js";
 import { IconBack, IconChevron } from "../components/icons.js";
 
@@ -65,7 +65,7 @@ export function LessonPage() {
       )}
 
       <article className="reading">
-        <Markdown>{data.readingMd}</Markdown>
+        <Prose>{data.readingMd}</Prose>
       </article>
 
       {labs && labs.length > 0 && (
