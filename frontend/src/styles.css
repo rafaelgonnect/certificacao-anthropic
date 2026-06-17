@@ -1575,6 +1575,23 @@ tbody tr:hover td {
   0%, 100% { transform: rotate(0); }
   50% { transform: rotate(26deg); }
 }
+/* mood: wave — levanta e balança a asa direita */
+.pia.wave .wing-r {
+  transform-origin: 0% 12%;
+  animation: pia-wave 0.7s ease-in-out infinite;
+}
+@keyframes pia-wave {
+  0%, 100% { transform: rotate(8deg); }
+  50% { transform: rotate(40deg); }
+}
+/* mood: think — inclina levemente a cabeça (corpo) e segura o topete */
+.pia.think .pia-body {
+  animation: pia-think 3s ease-in-out infinite;
+}
+@keyframes pia-think {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(-5deg) translateY(-2px); }
+}
 @media (prefers-reduced-motion: reduce) {
   .pia * { animation: none !important; }
 }

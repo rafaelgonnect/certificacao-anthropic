@@ -6,7 +6,7 @@ export function Cockatiel({
   mood = "idle",
   size = 200,
 }: {
-  mood?: "idle" | "talk" | "cheer";
+  mood?: "idle" | "talk" | "cheer" | "wave" | "think";
   size?: number;
 }) {
   return (
