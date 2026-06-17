@@ -32,6 +32,7 @@ COPY --from=backend /app/backend/prisma ./prisma
 # frontend buildado vira os estáticos servidos pelo backend
 COPY --from=frontend /app/frontend/dist ./public
 EXPOSE 3001
-# 1) sincroniza o schema (greenfield, sem migrações), 2) seed só se o banco estiver
-# vazio (idempotente — não reseta progresso em redeploys), 3) sobe a API
-CMD ["sh", "-c", "npx prisma db push --skip-generate --accept-data-loss && npx tsx prisma/seedIfEmpty.ts && node dist/index.js"]
+# 1) sincroniza o schema (greenfield, sem migrações), 2) seed por versão (semeia
+# packs novos e atualiza os que mudaram de versão, preservando progresso dos demais),
+# 3) sobe a API
+CMD ["sh", "-c", "npx prisma db push --skip-generate --accept-data-loss && npx tsx prisma/seedOnBoot.ts && node dist/index.js"]

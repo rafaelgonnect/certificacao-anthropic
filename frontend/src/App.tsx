@@ -4,6 +4,7 @@ import { AuthProvider } from "./auth/AuthContext.js";
 import { ProtectedRoute } from "./components/ProtectedRoute.js";
 import { AppShell } from "./components/AppShell.js";
 import { LoginPage } from "./pages/LoginPage.js";
+import { CertificationsPage } from "./pages/CertificationsPage.js";
 import { TrilhaPage } from "./pages/TrilhaPage.js";
 import { LessonPage } from "./pages/LessonPage.js";
 import { LabPage } from "./pages/LabPage.js";
@@ -26,7 +27,8 @@ export function App() {
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={shell(<TrilhaPage />)} />
+        <Route path="/" element={shell(<CertificationsPage />)} />
+        <Route path="/trilha/:slug" element={shell(<TrilhaPage />)} />
         <Route path="/licao/:id" element={shell(<LessonPage />)} />
         <Route path="/lab/:id" element={shell(<LabPage />)} />
         <Route path="/revisoes" element={shell(<ReviewsPage />)} />

@@ -34,7 +34,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="nav-label">Aprender</div>
           <NavLink to="/" end className={navClass}>
             <IconTrack />
-            <span>Trilha</span>
+            <span>Certificações</span>
           </NavLink>
           <NavLink to="/revisoes" className={navClass}>
             <IconCards />

@@ -1,16 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { api } from "../api/client.js";
-import { IconChevron, IconCards, IconQuiz, IconExam } from "../components/icons.js";
+import { IconChevron, IconCards, IconQuiz, IconExam, IconBack } from "../components/icons.js";
 
 type Lesson = { id: string; order: number; title: string };
 type Module = { id: string; order: number; title: string; lessons: Lesson[] };
 type Trilha = { title: string; description?: string; modules: Module[] };
 
 export function TrilhaPage() {
+  const params = useParams();
+  const slug = params.slug ?? "cca-foundations";
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["trilha", "cca-foundations"],
-    queryFn: () => api<Trilha>("/certifications/cca-foundations"),
+    queryKey: ["trilha", slug],
+    queryFn: () => api<Trilha>(`/certifications/${slug}`),
   });
 
   if (isLoading)
@@ -30,6 +33,7 @@ export function TrilhaPage() {
 
   return (
     <main>
+      <Link to="/" className="back-link"><IconBack className="" /> Todas as trilhas</Link>
       <div className="page-head">
         <div className="eyebrow">Trilha de certificação</div>
         <h1>{data.title}</h1>
@@ -38,35 +42,20 @@ export function TrilhaPage() {
 
       <div className="quick-grid">
         <Link to="/revisoes" className="quick">
-          <span className="q-ico q-green" aria-hidden="true">
-            <IconCards className="" />
-          </span>
-          <span>
-            Revisões
-            <small>Repetição espaçada</small>
-          </span>
+          <span className="q-ico q-green" aria-hidden="true"><IconCards className="" /></span>
+          <span>Revisões<small>Repetição espaçada</small></span>
         </Link>
-        <Link to="/quiz" className="quick">
-          <span className="q-ico q-blue" aria-hidden="true">
-            <IconQuiz className="" />
-          </span>
-          <span>
-            Praticar
-            <small>Quiz com feedback</small>
-          </span>
+        <Link to={`/quiz?cert=${slug}`} className="quick">
+          <span className="q-ico q-blue" aria-hidden="true"><IconQuiz className="" /></span>
+          <span>Praticar<small>Quiz com feedback</small></span>
         </Link>
-        <Link to="/simulado" className="quick">
-          <span className="q-ico q-gold" aria-hidden="true">
-            <IconExam className="" />
-          </span>
-          <span>
-            Simulado
-            <small>Teste de prontidão</small>
-          </span>
+        <Link to={`/simulado?cert=${slug}`} className="quick">
+          <span className="q-ico q-gold" aria-hidden="true"><IconExam className="" /></span>
+          <span>Simulado<small>Teste de prontidão</small></span>
         </Link>
       </div>
 
-      <div className="section-label" style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.8rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.8rem" }}>
         <h2 style={{ margin: 0 }}>Conteúdo</h2>
         <span className="qcount">{data.modules.length} módulos · {totalLessons} lições</span>
       </div>

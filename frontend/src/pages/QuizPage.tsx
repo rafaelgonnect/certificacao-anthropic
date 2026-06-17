@@ -1,6 +1,6 @@
 import { useState, type CSSProperties } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../api/client.js";
 import { IconBack } from "../components/icons.js";
 
@@ -10,9 +10,11 @@ type AnswerResult = { correct: boolean; correctIndex: number; explanation: strin
 const LETTERS = ["A", "B", "C", "D", "E", "F"];
 
 export function QuizPage() {
+  const [sp] = useSearchParams();
+  const cert = sp.get("cert") ?? "cca-foundations";
   const { data, isLoading, error } = useQuery({
-    queryKey: ["quiz", "cca-foundations"],
-    queryFn: () => api<Question[]>("/quiz?cert=cca-foundations&n=5"),
+    queryKey: ["quiz", cert],
+    queryFn: () => api<Question[]>(`/quiz?cert=${cert}&n=5`),
   });
   const [index, setIndex] = useState(0);
   const [feedback, setFeedback] = useState<AnswerResult | null>(null);
@@ -54,7 +56,7 @@ export function QuizPage() {
 
   return (
     <main>
-      <Link to="/" className="back-link"><IconBack className="" /> Voltar à trilha</Link>
+      <Link to={`/trilha/${cert}`} className="back-link"><IconBack className="" /> Voltar à trilha</Link>
       <div className="page-head">
         <div className="eyebrow">Praticar</div>
         <h1>Quiz · Foundations</h1>
@@ -69,7 +71,7 @@ export function QuizPage() {
             <p style={{ margin: 0 }}>Você acertou</p>
             <b>{correctCount} de {data.length}</b>
             <p style={{ marginTop: ".6rem" }}>
-              <Link to="/" className="btn btn-ghost btn-sm">Voltar à trilha</Link>
+              <Link to={`/trilha/${cert}`} className="btn btn-ghost btn-sm">Voltar à trilha</Link>
             </p>
           </div>
         </div>

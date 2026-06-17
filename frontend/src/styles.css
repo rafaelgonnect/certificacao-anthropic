@@ -581,6 +581,86 @@ main,
   color: #b8860b;
 }
 
+/* ── Catálogo de certificações ─────────────────────────────────────────── */
+.cert-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.1rem;
+}
+.cert-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  color: var(--ink);
+  transition: transform 0.16s var(--ease), box-shadow 0.16s var(--ease),
+    border-color 0.16s var(--ease);
+}
+.cert-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sh-2);
+  border-color: var(--green);
+  text-decoration: none;
+}
+.cert-card h2 {
+  font-size: 1.15rem;
+  margin: 0;
+}
+.cert-card p {
+  color: var(--ink-2);
+  font-size: 0.92rem;
+  margin: 0;
+  flex: 1;
+}
+.cert-tag {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+}
+.cert-tag.official {
+  background: var(--green-100);
+  color: var(--green-700);
+}
+.cert-tag.academy {
+  background: var(--blue-50);
+  color: var(--blue);
+}
+.cert-tag.prep {
+  background: var(--warn-50);
+  color: #9a5e12;
+}
+.cert-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+.cert-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.6rem;
+  font-weight: 600;
+  color: var(--green-700);
+}
+.cert-cta svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* ── Leitura (markdown da lição) ───────────────────────────────────────── */
 .reading {
   background: var(--surface);

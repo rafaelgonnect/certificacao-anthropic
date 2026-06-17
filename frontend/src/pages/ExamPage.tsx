@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../api/client.js";
 import { IconBack, IconClock, IconExam } from "../components/icons.js";
 
@@ -25,6 +25,8 @@ function formatTime(seconds: number): string {
 }
 
 export function ExamPage() {
+  const [sp] = useSearchParams();
+  const cert = sp.get("cert") ?? "cca-foundations";
   const [session, setSession] = useState<StartResult | null>(null);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [index, setIndex] = useState(0);
@@ -36,7 +38,7 @@ export function ExamPage() {
     mutationFn: () =>
       api<StartResult>("/exams/start", {
         method: "POST",
-        body: JSON.stringify({ cert: "cca-foundations" }),
+        body: JSON.stringify({ cert }),
       }),
     onSuccess: (res) => {
       setSession(res);
@@ -78,7 +80,7 @@ export function ExamPage() {
       report.readinessPct >= 70 ? "var(--green)" : report.readinessPct >= 40 ? "var(--gold)" : "var(--danger)";
     return (
       <main>
-        <Link to="/" className="back-link"><IconBack className="" /> Voltar à trilha</Link>
+        <Link to={`/trilha/${cert}`} className="back-link"><IconBack className="" /> Voltar à trilha</Link>
         <div className="page-head">
           <div className="eyebrow">Simulado concluído</div>
           <h1>Resultado do simulado</h1>
@@ -128,7 +130,7 @@ export function ExamPage() {
   if (!session) {
     return (
       <main>
-        <Link to="/" className="back-link"><IconBack className="" /> Voltar à trilha</Link>
+        <Link to={`/trilha/${cert}`} className="back-link"><IconBack className="" /> Voltar à trilha</Link>
         <div className="page-head">
           <div className="eyebrow">Avaliação</div>
           <h1>Simulado</h1>
@@ -158,7 +160,7 @@ export function ExamPage() {
 
   return (
     <main>
-      <Link to="/" className="back-link"><IconBack className="" /> Voltar à trilha</Link>
+      <Link to={`/trilha/${cert}`} className="back-link"><IconBack className="" /> Voltar à trilha</Link>
       <div className="page-head"><h1 style={{ marginBottom: 0 }}>Simulado</h1></div>
 
       <div className="exam-top">
