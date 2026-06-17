@@ -31,6 +31,11 @@ COPY --from=backend /app/backend/package.json ./package.json
 COPY --from=backend /app/backend/prisma ./prisma
 # frontend buildado vira os estáticos servidos pelo backend
 COPY --from=frontend /app/frontend/dist ./public
+# Carimbo de versão: o timestamp muda a cada build (os COPY acima invalidam o
+# cache quando há código novo), então /health expõe quando a imagem subiu.
+# GIT_SHA é opcional (passe via --build-arg se o builder fornecer).
+ARG GIT_SHA=unknown
+RUN date -u +%Y-%m-%dT%H:%M:%SZ > ./BUILD_TIME && echo "$GIT_SHA" > ./GIT_SHA
 EXPOSE 3001
 # 1) sincroniza o schema (greenfield, sem migrações), 2) seed por versão (semeia
 # packs novos e atualiza os que mudaram de versão, preservando progresso dos demais),
