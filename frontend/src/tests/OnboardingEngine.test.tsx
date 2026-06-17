@@ -25,8 +25,10 @@ describe("OnboardingEngine", () => {
   it("mostra o primeiro passo e avança", async () => {
     vi.spyOn(global, "fetch").mockResolvedValue(new Response("[]", { status: 200 }));
     renderOnb();
-    expect(await screen.findByText("Oi! Eu sou a Pia 🦜")).toBeInTheDocument();
+    expect(await screen.findByText("Oi, que bom te ver por aqui! 🦜")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Continuar" }));
-    expect(await screen.findByText("Qual certificação é seu foco?")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Pra começar: como é sua relação com IA hoje?")
+    ).toBeInTheDocument();
   });
 });

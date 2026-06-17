@@ -10,7 +10,7 @@ export type Answers = {
 type Base = { id: string; mood: Mood; title: string; text?: string };
 
 export type InfoStep = Base & { kind: "info" };
-export type ChoiceOption = { value: string; label: string; desc?: string };
+export type ChoiceOption = { value: string; label: string; desc?: string; tag?: string };
 export type ChoiceStep = Base & {
   kind: "choice";
   field: keyof Answers;

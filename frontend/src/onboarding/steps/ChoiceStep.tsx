@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../api/client.js";
+import { CERT_COPY } from "../certCopy.js";
 import type { ChoiceStep as T, ChoiceOption } from "../types.js";
 
 type Cert = { slug: string; title: string; description: string };
@@ -21,7 +22,15 @@ export function ChoiceStep({
 
   const options: ChoiceOption[] =
     step.source === "certs"
-      ? (certs.data ?? []).map((c) => ({ value: c.slug, label: c.title, desc: c.description }))
+      ? (certs.data ?? []).map((c) => {
+          const copy = CERT_COPY[c.slug];
+          return {
+            value: c.slug,
+            label: copy?.name ?? c.title,
+            desc: copy?.blurb ?? c.description,
+            tag: copy?.tag,
+          };
+        })
       : step.options ?? [];
 
   return (
@@ -39,7 +48,10 @@ export function ChoiceStep({
               className={"onb-choice" + (value === o.value ? " is-on" : "")}
               onClick={() => onPick(o.value)}
             >
-              <span className="onb-choice-label">{o.label}</span>
+              <span className="onb-choice-label">
+                {o.label}
+                {o.tag && <span className="onb-tag">{o.tag}</span>}
+              </span>
               {o.desc && <span className="onb-choice-desc">{o.desc}</span>}
             </button>
           ))}

@@ -1683,9 +1683,53 @@ tbody tr:hover td {
 .onb-choice.is-on { border-color: var(--green); background: var(--green-100); }
 .onb-choice.is-correct { border-color: var(--success); background: var(--success-50); }
 .onb-choice.is-wrong { border-color: var(--danger); background: var(--danger-50); }
-.onb-choice-label { font-weight: 700; }
+.onb-choice-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-weight: 700;
+}
 .onb-choice-desc { font-size: 0.82rem; color: var(--muted); }
 .onb-input { margin-top: 1rem; text-align: center; font-size: 1.05rem; }
+
+/* pílula "Ótima pra começar" ao lado do nome da trilha */
+.onb-tag {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--green);
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+}
+
+/* opções de questão (degustação): letra em bolinha + texto à esquerda */
+.onb-choice-q {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+}
+.onb-choice-q .onb-choice-label { font-weight: 600; }
+.onb-key {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-2);
+  background: var(--surface);
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: var(--ink-2);
+  transition: border-color 0.14s var(--ease), background 0.14s var(--ease), color 0.14s var(--ease);
+}
+.onb-choice-q.is-correct .onb-key { border-color: var(--success); background: var(--success); color: #fff; }
+.onb-choice-q.is-wrong .onb-key { border-color: var(--danger); background: var(--danger); color: #fff; }
 @keyframes onb-pop {
   0% { transform: translateY(8px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
