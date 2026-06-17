@@ -6,9 +6,11 @@ import { computeMastery, type AttemptLite, type MasteryMap } from "../learning/m
 
 export const adminRoutes = Router();
 
-// Painel do gestor: autenticado e restrito a gestor/admin
-adminRoutes.use(requireAuth);
-adminRoutes.use(requireRole("gestor", "admin"));
+// Painel do gestor: autenticado e restrito a gestor/admin.
+// Escopado a "/admin" (não no nível do router) porque este router é montado em
+// "/api" e "/" junto com outros: um guard global responderia 403 e impediria que
+// requisições de outras rotas (ex.: /api/game/*) caíssem nos routers seguintes.
+adminRoutes.use("/admin", requireAuth, requireRole("gestor", "admin"));
 
 // GET /admin/users → lista de usuários (pendentes primeiro) para aprovação
 adminRoutes.get("/admin/users", async (_req, res) => {
