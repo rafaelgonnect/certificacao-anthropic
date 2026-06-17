@@ -728,6 +728,47 @@ main,
   border: none;
   padding: 0;
 }
+
+/* topo da lição: voltar + "Lição X de Y" */
+.lesson-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* navegação entre lições (rodapé) */
+.lesson-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+.lnav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--border-2);
+  border-radius: var(--r);
+  background: var(--surface);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color 0.14s var(--ease), background 0.14s var(--ease);
+}
+.lnav:hover { border-color: var(--green); background: var(--green-50); }
+.lnav-dir { font-size: 0.76rem; font-weight: 700; color: var(--muted); }
+.lnav-ttl { font-weight: 600; font-size: 0.95rem; }
+.lnav-next { text-align: right; }
+.lnav-next .lnav-dir { color: var(--green); }
+.lnav-done { border-color: var(--green); background: var(--green-50); }
+.lnav-empty { border: none; background: none; }
+@media (max-width: 560px) {
+  .lesson-nav { grid-template-columns: 1fr; }
+  .lnav-next { text-align: left; }
+  .lnav-empty { display: none; }
+}
 .read-progress {
   position: sticky;
   top: 0;

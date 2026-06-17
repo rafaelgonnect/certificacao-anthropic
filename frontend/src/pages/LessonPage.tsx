@@ -6,7 +6,17 @@ import { Prose } from "../components/Prose.js";
 import { CoachTip } from "../components/CoachTip.js";
 import { IconBack, IconChevron } from "../components/icons.js";
 
-type Lesson = { id: string; title: string; readingMd: string };
+type NeighborLesson = { id: string; title: string };
+type Lesson = {
+  id: string;
+  title: string;
+  readingMd: string;
+  certSlug: string;
+  position: number;
+  total: number;
+  prev: NeighborLesson | null;
+  next: NeighborLesson | null;
+};
 type LabLink = { id: string; title: string };
 
 export function LessonPage() {
@@ -14,6 +24,11 @@ export function LessonPage() {
   const [sp] = useSearchParams();
   const guia = sp.get("guia") === "1";
   const [progress, setProgress] = useState(0);
+
+  // ao trocar de lição (prev/próxima), volta ao topo da leitura
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [id]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["lesson", id],
@@ -56,9 +71,12 @@ export function LessonPage() {
       <div className="read-progress">
         <i style={{ "--p": `${progress}%` } as CSSProperties} />
       </div>
-      <Link to="/" className="back-link">
-        <IconBack className="" /> Voltar à trilha
-      </Link>
+      <div className="lesson-top">
+        <Link to={`/trilha/${data.certSlug}`} className="back-link">
+          <IconBack className="" /> Voltar à trilha
+        </Link>
+        <span className="qcount">Lição {data.position} de {data.total}</span>
+      </div>
 
       {guia && (
         <CoachTip text="Essa é sua primeira lição! 🦜 Lê com calma, sem decorar nada. Quando terminar, é só voltar pra trilha e seguir em frente — ou testar no quiz de “Praticar”. Tô aqui com você! 💚" />
@@ -87,6 +105,28 @@ export function LessonPage() {
           </ul>
         </div>
       )}
+
+      <nav className="lesson-nav" aria-label="Navegação entre lições">
+        {data.prev ? (
+          <Link to={`/licao/${data.prev.id}`} className="lnav lnav-prev">
+            <span className="lnav-dir">← Anterior</span>
+            <span className="lnav-ttl">{data.prev.title}</span>
+          </Link>
+        ) : (
+          <span className="lnav lnav-empty" aria-hidden="true" />
+        )}
+        {data.next ? (
+          <Link to={`/licao/${data.next.id}`} className="lnav lnav-next">
+            <span className="lnav-dir">Próxima lição →</span>
+            <span className="lnav-ttl">{data.next.title}</span>
+          </Link>
+        ) : (
+          <Link to={`/trilha/${data.certSlug}`} className="lnav lnav-next lnav-done">
+            <span className="lnav-dir">Concluir ✓</span>
+            <span className="lnav-ttl">Voltar à trilha</span>
+          </Link>
+        )}
+      </nav>
     </main>
   );
 }
