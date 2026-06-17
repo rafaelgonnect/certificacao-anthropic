@@ -1591,9 +1591,11 @@ tbody tr:hover td {
 }
 .pia .wing-l {
   transform-origin: 100% 12%;
+  animation: pia-idleflap-l 6s ease-in-out infinite;
 }
 .pia .wing-r {
   transform-origin: 0% 12%;
+  animation: pia-idleflap-r 6s ease-in-out infinite;
 }
 .pia.cheer .wing-l {
   animation: pia-flap-l 0.4s ease-in-out infinite;
@@ -1630,6 +1632,22 @@ tbody tr:hover td {
 @keyframes pia-flap-r {
   0%, 100% { transform: rotate(0); }
   50% { transform: rotate(26deg); }
+}
+/* esvoaçar leve e ocasional (base): repousa a maior parte do ciclo e dá uma
+   batidinha dupla de asas perto do fim — intercalado com o balanço/piscada. */
+@keyframes pia-idleflap-l {
+  0%, 62%, 100% { transform: rotate(0deg); }
+  70% { transform: rotate(-15deg); }
+  78% { transform: rotate(-3deg); }
+  86% { transform: rotate(-12deg); }
+  94% { transform: rotate(-1deg); }
+}
+@keyframes pia-idleflap-r {
+  0%, 62%, 100% { transform: rotate(0deg); }
+  70% { transform: rotate(15deg); }
+  78% { transform: rotate(3deg); }
+  86% { transform: rotate(12deg); }
+  94% { transform: rotate(1deg); }
 }
 /* mood: wave — levanta e balança a asa direita */
 .pia.wave .wing-r {
