@@ -1723,6 +1723,41 @@ tbody tr:hover td {
 .coach-body p { margin: 0; color: var(--ink); font-size: 0.96rem; line-height: 1.4; }
 .coach-body .btn-sm { align-self: flex-start; }
 
+/* Spotlight (tour estilo tutor.js): furo de luz + balão da Pia apontando o alvo */
+.spot-hole {
+  position: fixed;
+  border-radius: var(--r);
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.58);
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+  pointer-events: none;
+  z-index: 90;
+  transition: top 0.18s var(--ease), left 0.18s var(--ease),
+    width 0.18s var(--ease), height 0.18s var(--ease);
+}
+.spot-tip {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(460px, calc(100vw - 24px));
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--surface);
+  border: 1.5px solid var(--green-100);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-2);
+  padding: 0.7rem 0.9rem 0.7rem 0.4rem;
+  z-index: 91;
+  pointer-events: auto;
+  animation: onb-pop 0.3s var(--ease);
+}
+.spot-tip.above { transform: translate(-50%, -100%); }
+.spot-tip .pia { flex: 0 0 auto; }
+.spot-tip-body { display: flex; flex-direction: column; gap: 0.5rem; }
+.spot-tip-body p { margin: 0; color: var(--ink); font-size: 0.95rem; line-height: 1.4; }
+.spot-tip-body .btn-sm { align-self: flex-start; }
+
 /* destaque da primeira lição no modo guia */
 .lesson-row.is-guide-target {
   border: 1.5px solid var(--green);

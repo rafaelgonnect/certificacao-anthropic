@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api/client.js";
 import { useAuth } from "../auth/AuthContext.js";
-import { CoachTip } from "../components/CoachTip.js";
+import { Spotlight } from "../components/Spotlight.js";
 import { IconChevron, IconCards, IconQuiz, IconExam, IconBack } from "../components/icons.js";
 
 type Lesson = { id: string; order: number; title: string };
@@ -45,8 +45,8 @@ export function TrilhaPage() {
         ? " Você já tem traquejo, mas todo mundo começa pelos fundamentos. 😉"
         : "";
   const coachText = firstLesson
-    ? `Cheguei junto! 🦜 Sua primeira lição é “${firstLesson.title}”. Toca nela ali embaixo (está destacada) pra começar — eu te explico lá dentro.${extra}`
-    : "Cheguei junto! 🦜 Explore a trilha no seu ritmo — qualquer dúvida, é só me chamar.";
+    ? `Sua primeira lição é “${firstLesson.title}”. Clica no item em destaque pra começar — eu te explico lá dentro.${extra}`
+    : "Explore a trilha no seu ritmo — qualquer dúvida, é só me chamar. 🦜";
 
   return (
     <main>
@@ -57,7 +57,7 @@ export function TrilhaPage() {
         {data.description && <p>{data.description}</p>}
       </div>
 
-      {guia && <CoachTip text={coachText} />}
+      {guia && firstLesson && <Spotlight targetId="guia-primeira-licao" text={coachText} />}
 
       <div className="quick-grid">
         <Link to="/revisoes" className="quick">
@@ -93,6 +93,7 @@ export function TrilhaPage() {
                 <li key={l.id}>
                   <Link
                     to={isFirst ? `/licao/${l.id}?guia=1` : `/licao/${l.id}`}
+                    id={isFirst ? "guia-primeira-licao" : undefined}
                     className={"lesson-row" + (isFirst ? " is-guide-target" : "")}
                   >
                     <span className="dot" aria-hidden="true">{l.order}</span>
