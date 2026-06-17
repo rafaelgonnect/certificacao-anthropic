@@ -1291,6 +1291,219 @@ tbody tr:hover td {
   text-align: center;
 }
 
+/* ── Jogo: Startup Tycoon ──────────────────────────────────────────────── */
+.game-hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.2rem;
+  align-items: center;
+  padding: 1.6rem 1.8rem;
+  background: linear-gradient(135deg, #fff, var(--green-50));
+  border: 1px solid var(--border);
+}
+.game-hero h1 {
+  margin: 0.1rem 0 0.3rem;
+}
+.valuation {
+  font-family: "Poppins", sans-serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--green-700);
+}
+.valuation small {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+.kpis {
+  display: flex;
+  gap: 1.4rem;
+}
+.kpi {
+  text-align: right;
+}
+.kpi b {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.3rem;
+  color: var(--ink);
+  display: block;
+}
+.kpi span {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.collect-btn {
+  grid-column: 1 / -1;
+  background: var(--gold);
+  color: #5a3d00;
+  font-weight: 700;
+  --bh: #e9b53e;
+}
+.nudge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.9rem 1.2rem;
+  margin-top: 1rem;
+  background: var(--blue-50);
+  border-color: #cfe2ef;
+}
+.dept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+.dept-card {
+  padding: 1.1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.dept-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.dept-top h3 {
+  margin: 0;
+  font-size: 1.02rem;
+}
+.stars {
+  color: var(--gold);
+  letter-spacing: 1px;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+.qline {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.qline .qlabel {
+  font-size: 0.78rem;
+  color: var(--muted);
+  width: 64px;
+  flex: none;
+}
+.qline .track {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.qline .track > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--green-600));
+  border-radius: 999px;
+}
+.qline .qval {
+  font-size: 0.8rem;
+  font-weight: 700;
+  width: 38px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.dept-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.tier-seg {
+  display: inline-flex;
+  background: var(--bg);
+  border: 1px solid var(--border-2);
+  border-radius: 999px;
+  padding: 2px;
+}
+.tier-opt {
+  background: transparent;
+  color: var(--ink-2);
+  box-shadow: none;
+  border: none;
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  position: relative;
+}
+.tier-opt:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+.tier-opt.is-on {
+  background: var(--blue);
+  color: #fff;
+}
+.tier-opt.is-ideal::after {
+  content: "★";
+  position: absolute;
+  top: -7px;
+  right: -2px;
+  font-size: 0.6rem;
+  color: var(--gold);
+}
+.dept-mrr {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: var(--green-700);
+  white-space: nowrap;
+}
+.dept-mrr small {
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.tier-hint {
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+.board {
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem;
+  counter-reset: none;
+}
+.board li {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--r-sm);
+}
+.board li:nth-child(odd) {
+  background: var(--surface-2);
+}
+.board .b-rank {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: var(--muted);
+  width: 34px;
+}
+.board .b-name {
+  flex: 1;
+  font-weight: 600;
+}
+.board .b-founder {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.board .b-val {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: var(--green-700);
+}
+
 /* ── Responsivo ────────────────────────────────────────────────────────── */
 @media (max-width: 860px) {
   .layout {
@@ -1332,5 +1545,14 @@ tbody tr:hover td {
   }
   .grade-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .game-hero {
+    grid-template-columns: 1fr;
+  }
+  .kpis {
+    justify-content: space-between;
+  }
+  .kpi {
+    text-align: left;
   }
 }

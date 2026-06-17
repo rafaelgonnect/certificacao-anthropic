@@ -8,6 +8,7 @@ import {
   IconExam,
   IconChart,
   IconLogout,
+  IconRocket,
 } from "./icons.js";
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
@@ -47,6 +48,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           <NavLink to="/simulado" className={navClass}>
             <IconExam />
             <span>Simulado</span>
+          </NavLink>
+
+          <div className="nav-label">Jogar</div>
+          <NavLink to="/jogo" className={navClass}>
+            <IconRocket />
+            <span>Minha Startup</span>
           </NavLink>
           {isGestor && (
             <>

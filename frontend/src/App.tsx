@@ -5,6 +5,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute.js";
 import { AppShell } from "./components/AppShell.js";
 import { LoginPage } from "./pages/LoginPage.js";
 import { CertificationsPage } from "./pages/CertificationsPage.js";
+import { GamePage } from "./pages/GamePage.js";
 import { TrilhaPage } from "./pages/TrilhaPage.js";
 import { LessonPage } from "./pages/LessonPage.js";
 import { LabPage } from "./pages/LabPage.js";
@@ -28,6 +29,8 @@ export function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={shell(<CertificationsPage />)} />
+        <Route path="/jogo" element={shell(<GamePage />)} />
+        <Route path="/jogo/:slug" element={shell(<GamePage />)} />
         <Route path="/trilha/:slug" element={shell(<TrilhaPage />)} />
         <Route path="/licao/:id" element={shell(<LessonPage />)} />
         <Route path="/lab/:id" element={shell(<LabPage />)} />

@@ -23,7 +23,27 @@ model User {
   reviews      ReviewState[]
   attempts     Attempt[]
   examSessions ExamSession[]
+  companies    Company[]
   createdAt    DateTime @default(now())
+}
+
+// Estado persistido do jogo "Startup Tycoon de IA": uma empresa por usuário+cert.
+// As métricas derivadas (nível, qualidade, usuários) são calculadas on-read a
+// partir de Attempt/ReviewState; aqui guardamos só o que precisa persistir.
+model Company {
+  id              String   @id @default(uuid())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  certSlug        String
+  name            String
+  credits         Int      @default(0)
+  tiers           Json     @default("{}")
+  mrr             Int      @default(0)
+  valuation       Int      @default(0)
+  lastCollectedAt DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, certSlug])
 }
 
 model Certification {

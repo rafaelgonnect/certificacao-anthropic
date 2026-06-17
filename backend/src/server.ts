@@ -7,6 +7,7 @@ import { learningRoutes } from "./learning/routes.js";
 import { examRoutes } from "./learning/examRoutes.js";
 import { labRoutes } from "./learning/labRoutes.js";
 import { adminRoutes } from "./admin/routes.js";
+import { gameRoutes } from "./game/routes.js";
 export function createApp() {
   const app = express();
   app.use(cors());
@@ -38,6 +39,8 @@ export function createApp() {
   app.use("/", labRoutes);
   app.use("/api", adminRoutes);
   app.use("/", adminRoutes);
+  app.use("/api", gameRoutes);
+  app.use("/", gameRoutes);
 
   // 404 para rotas de API não encontradas
   app.use("/api", (_req, res) => res.status(404).json({ error: "not found" }));
