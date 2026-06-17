@@ -11,11 +11,13 @@ import { buildWithClaude } from "./build-with-claude.js";
 import { ccaDeveloperPrep } from "./cca-developer-prep.js";
 import { ccaSellerPrep } from "./cca-seller-prep.js";
 
-// Foundations = módulos base + módulos de aprofundamento. version bumpada (2 -> 3)
-// para que o seed por versão atualize o conteúdo no próximo deploy.
+// Foundations = módulos base + módulos de aprofundamento. A versão efetiva é
+// definida AQUI (sobrepõe a do pack base) e precisa ser bumpada a cada mudança
+// de conteúdo da Foundations para o seed por versão atualizar no boot.
+// 4: adiciona diagramas Mermaid (loop de tool-use, arquitetura MCP).
 const foundations: CertificationPack = {
   ...ccaFoundations,
-  version: 3,
+  version: 4,
   modules: [...ccaFoundations.modules, ...foundationsExtraModules],
 };
 
