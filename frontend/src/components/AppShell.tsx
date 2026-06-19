@@ -64,6 +64,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             <IconExam />
             <span>Simulado</span>
           </NavLink>
+          <NavLink to="/skills" className={navClass}>
+            <IconRocket />
+            <span>Skills & Plugins</span>
+          </NavLink>
 
           <div className="nav-label">Jogar</div>
           <NavLink to="/jogo" className={navClass}>
@@ -81,6 +85,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <IconUsers />
                 <span>Usuários</span>
               </NavLink>
+              {user?.role === "admin" && (
+                <NavLink to="/admin/skills" className={navClass}>
+                  <IconRocket />
+                  <span>Gestão de Skills</span>
+                </NavLink>
+              )}
             </>
           )}
         </nav>

@@ -35,7 +35,47 @@ model User {
   attempts     Attempt[]
   examSessions ExamSession[]
   companies    Company[]
+  installToken InstallToken?
   createdAt    DateTime @default(now())
+}
+
+// Catálogo de skills/plugins do Claude Code distribuídos para o time.
+// O banco é a fonte da verdade; o repositório git servido por git-http-backend
+// é materializado a partir daqui (ver src/marketplace/materialize.ts).
+model Plugin {
+  id          String        @id @default(uuid())
+  slug        String        @unique // kebab-case; vira /plugin install <slug>@colaborativa
+  displayName String
+  description String
+  version     String        @default("0.1.0") // semver; bump = nova versão publicada
+  category    String?
+  keywords    String[]
+  author      String?
+  published   Boolean       @default(false) // só publicados entram no marketplace.json
+  skills      PluginSkill[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model PluginSkill {
+  id        String @id @default(uuid())
+  plugin    Plugin @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  pluginId  String
+  slug      String // pasta skills/<slug>/
+  skillMd   String // conteúdo do SKILL.md (frontmatter + corpo)
+
+  @@unique([pluginId, slug])
+}
+
+// Token por usuário usado no path da URL git para o acesso restrito ao marketplace.
+model InstallToken {
+  id         String    @id @default(uuid())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String    @unique
+  token      String    @unique
+  revokedAt  DateTime?
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
 }
 
 // Estado persistido do jogo "Startup Tycoon de IA": uma empresa por usuário+cert.

@@ -16,6 +16,8 @@ import { QuizPage } from "./pages/QuizPage.js";
 import { ExamPage } from "./pages/ExamPage.js";
 import { GestorDashboard } from "./pages/GestorDashboard.js";
 import { UsersAdminPage } from "./pages/UsersAdminPage.js";
+import { SkillsCatalogPage } from "./pages/SkillsCatalogPage.js";
+import { SkillsAdminPage } from "./pages/SkillsAdminPage.js";
 
 /** Redireciona para o onboarding quem ainda não o concluiu. */
 function RequireOnboarded({ children }: { children: ReactNode }) {
@@ -59,7 +61,9 @@ export function App() {
         <Route path="/quiz" element={shell(<QuizPage />)} />
         <Route path="/simulado" element={shell(<ExamPage />)} />
         <Route path="/gestor" element={shell(<GestorDashboard />)} />
+        <Route path="/skills" element={shell(<SkillsCatalogPage />)} />
         <Route path="/admin/usuarios" element={shell(<UsersAdminPage />)} />
+        <Route path="/admin/skills" element={shell(<SkillsAdminPage />)} />
       </Routes>
     </AuthProvider>
   );

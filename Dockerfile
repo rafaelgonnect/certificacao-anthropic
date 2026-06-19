@@ -22,7 +22,8 @@ RUN npx prisma generate && npm run build
 # 3) Runtime
 FROM node:22-alpine
 # Prisma precisa do OpenSSL em runtime (db push / db seed).
-RUN apk add --no-cache openssl
+# git é usado pelo marketplace de skills (git smart-HTTP via git-http-backend).
+RUN apk add --no-cache openssl git
 WORKDIR /app/backend
 ENV NODE_ENV=production
 COPY --from=backend /app/backend/node_modules ./node_modules

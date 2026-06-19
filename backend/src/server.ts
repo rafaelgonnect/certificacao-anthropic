@@ -9,6 +9,8 @@ import { examRoutes } from "./learning/examRoutes.js";
 import { labRoutes } from "./learning/labRoutes.js";
 import { adminRoutes } from "./admin/routes.js";
 import { gameRoutes } from "./game/routes.js";
+import { marketplaceRoutes } from "./marketplace/routes.js";
+import { gitHttpRouter } from "./marketplace/gitHttp.js";
 // Lido uma vez no start. BUILD_TIME/GIT_SHA são gravados pelo Dockerfile no build;
 // em dev (sem os arquivos) caímos no fallback. Serve pra saber qual versão está no ar.
 const BUILD_INFO = (() => {
@@ -25,6 +27,9 @@ const BUILD_INFO = (() => {
 export function createApp() {
   const app = express();
   app.use(cors());
+  // Git smart-HTTP do marketplace: ANTES do express.json() (corpo binário) e do
+  // fallback do SPA. Tem token no path e é read-only.
+  app.use(gitHttpRouter());
   app.use(express.json());
   const health = (_req: express.Request, res: express.Response) =>
     res.json({ ok: true, builtAt: BUILD_INFO.builtAt, commit: BUILD_INFO.commit });
@@ -58,6 +63,8 @@ export function createApp() {
   app.use("/", adminRoutes);
   app.use("/api", gameRoutes);
   app.use("/", gameRoutes);
+  app.use("/api", marketplaceRoutes);
+  app.use("/", marketplaceRoutes);
 
   // 404 para rotas de API não encontradas
   app.use("/api", (_req, res) => res.status(404).json({ error: "not found" }));
