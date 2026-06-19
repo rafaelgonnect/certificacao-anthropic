@@ -15,9 +15,12 @@ import { ccaSellerPrep } from "./cca-seller-prep.js";
 // definida AQUI (sobrepõe a do pack base) e precisa ser bumpada a cada mudança
 // de conteúdo da Foundations para o seed por versão atualizar no boot.
 // 4: adiciona diagramas Mermaid (loop de tool-use, arquitetura MCP).
+// 5: revisão acadêmica — lição de raciocínio migrada de extended thinking
+//    (budget_tokens, legado) para adaptive thinking + effort; IDs de exemplo
+//    atualizados para claude-sonnet-4-6.
 const foundations: CertificationPack = {
   ...ccaFoundations,
-  version: 4,
+  version: 5,
   modules: [...ccaFoundations.modules, ...foundationsExtraModules],
 };
 

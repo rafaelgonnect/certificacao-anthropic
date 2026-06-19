@@ -156,7 +156,7 @@ export const ccaFoundations: CertificationPack = {
                 'import Anthropic from "@anthropic-ai/sdk";',
                 "const client = new Anthropic();",
                 "const res = await client.messages.create({",
-                '  model: "claude-sonnet-4-5",',
+                '  model: "claude-sonnet-4-6",',
                 "  max_tokens: 1024,",
                 '  system: "Você é um tutor de certificações Anthropic. Responda de forma concisa.",',
                 '  messages: [{ role: "user", content: "Explique o que é max_tokens." }],',
