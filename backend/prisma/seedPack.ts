@@ -48,6 +48,7 @@ export async function seedPack(
       title: pack.title,
       description: pack.description,
       version: pack.version,
+      level: pack.level ?? "iniciante",
       modules: {
         create: pack.modules.map((mod, mi) => {
           counts.modules++;

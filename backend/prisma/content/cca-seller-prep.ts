@@ -20,6 +20,7 @@ export const ccaSellerPrep: CertificationPack = {
   description:
     "Curso PREPARATÓRIO baseado em material público da Anthropic para a futura certificação de Seller (anunciada, ainda não lançada): proposta de valor do Claude, família de modelos, casos de uso, opções de implantação, IA responsável e como posicionar soluções. Não é o exame oficial.",
   version: 1,
+  level: "comercial",
   modules: [
     // =====================================================================
     // MÓDULO 1 — CONTEXTO E PROPOSTA DE VALOR

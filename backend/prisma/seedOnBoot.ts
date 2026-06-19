@@ -31,6 +31,13 @@ try {
     } else {
       console.log(`= ${pack.slug} v${existing.version} já atual — pulado.`);
     }
+
+    // Sincroniza metadados leves (nível) mesmo quando o pack não é re-semeado —
+    // assim mudanças de nível propagam no boot sem resetar o progresso do aluno.
+    await prisma.certification.update({
+      where: { slug: pack.slug },
+      data: { level: pack.level ?? "iniciante" },
+    });
   }
 } catch (err) {
   console.error("Falha no seed de boot:", err);

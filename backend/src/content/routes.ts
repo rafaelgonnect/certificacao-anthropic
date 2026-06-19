@@ -3,7 +3,7 @@ import { prisma } from "../db.js";
 export const contentRoutes = Router();
 contentRoutes.get("/certifications", async (_req, res) => {
   const certs = await prisma.certification.findMany({
-    select: { id: true, slug: true, title: true, description: true, version: true },
+    select: { id: true, slug: true, title: true, description: true, version: true, level: true },
     orderBy: { title: "asc" },
   });
   res.json(certs);

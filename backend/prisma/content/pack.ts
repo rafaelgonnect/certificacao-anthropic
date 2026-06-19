@@ -42,11 +42,16 @@ export type ModuleSeed = {
   lessons: LessonSeed[];
 };
 
+// Nível pedagógico da trilha, usado para agrupar o catálogo.
+// "comercial" é uma trilha de público distinto (vendas), fora da escada técnica.
+export type CertLevel = "iniciante" | "intermediario" | "avancado" | "comercial";
+
 export type CertificationPack = {
   slug: string;
   title: string;
   description: string;
   version: number;
+  level?: CertLevel; // default "iniciante" no seed se ausente
   modules: ModuleSeed[];
 };
 

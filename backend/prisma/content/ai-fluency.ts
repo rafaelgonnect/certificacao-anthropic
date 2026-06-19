@@ -17,6 +17,7 @@ export const aiFluency: CertificationPack = {
   description:
     "Trilha oficial da Anthropic Academy sobre fluência em IA: como colaborar com sistemas de IA de forma eficaz, ética e segura, usando o framework dos 4 Ds (Delegation, Description, Discernment, Diligence).",
   version: 2,
+  level: "iniciante",
   modules: [
     // =====================================================================
     // MÓDULO 1 — FUNDAMENTOS DA FLUÊNCIA EM IA

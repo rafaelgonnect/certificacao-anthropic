@@ -2251,3 +2251,27 @@ tbody tr:hover td {
 .toolbar { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-bottom: 1.2rem; }
 .toolbar .grow { flex: 1; }
 .muted-note { color: var(--muted); font-size: 0.85rem; }
+
+/* ── Catálogo por nível ────────────────────────────────────────────────── */
+.level-section { margin-bottom: 2.2rem; }
+.level-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  margin: 0 0 1rem;
+  flex-wrap: wrap;
+}
+.level-head p { margin: 0; color: var(--ink-2); font-size: 0.92rem; }
+.level-badge {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.level-badge.iniciante { background: var(--green-100); color: var(--green-700); }
+.level-badge.intermediario { background: var(--blue-50); color: var(--blue-600); }
+.level-badge.avancado { background: var(--gold-50); color: #9a5e12; }
+.level-badge.comercial { background: #efeaf7; color: #5b3da8; }

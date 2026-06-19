@@ -22,6 +22,7 @@ export const ccaDeveloperPrep: CertificationPack = {
   description:
     "Curso PREPARATÓRIO baseado na documentação oficial da Anthropic para a futura certificação de Developer (anunciada, ainda não lançada). Aprofunda construção de agentes, Agent SDK, avaliação, RAG e confiabilidade em produção. Não é o exame oficial.",
   version: 1,
+  level: "avancado",
   modules: [
     // =====================================================================
     // MÓDULO 1 — CONTEXTO DA CERTIFICAÇÃO E FUNDAMENTOS DO DESENVOLVEDOR

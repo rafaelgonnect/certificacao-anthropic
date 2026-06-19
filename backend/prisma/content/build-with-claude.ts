@@ -26,6 +26,7 @@ export const buildWithClaude: CertificationPack = {
   // v2: revisão acadêmica — IDs de exemplo para claude-sonnet-4-6 e nota sobre a
   // remoção dos parâmetros de amostragem (temperature/top_p/top_k) nos modelos de ponta.
   version: 2,
+  level: "intermediario",
   modules: [
     // =====================================================================
     // MÓDULO 1 — COMEÇANDO
