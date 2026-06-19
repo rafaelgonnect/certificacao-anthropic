@@ -4,7 +4,6 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { buildMarketplaceJson, writeTree } from "../src/marketplace/materialize.js";
-import { parseCgi } from "../src/marketplace/gitHttp.js";
 
 const samplePlugins = [
   {
@@ -85,23 +84,6 @@ describe("writeTree", () => {
     // Reescreve sem a skill "bisect"
     writeTree(dest, [{ ...samplePlugins[0], skills: [samplePlugins[0].skills[0]] }]);
     expect(fs.existsSync(path.join(dest, "plugins", "git-helpers", "skills", "bisect"))).toBe(false);
-  });
-});
-
-describe("parseCgi", () => {
-  it("extrai status e headers do output CGI", () => {
-    const out = Buffer.from("Status: 200 OK\r\nContent-Type: application/x-git-upload-pack-advertisement\r\n\r\nPAYLOAD");
-    const { status, headers, body } = parseCgi(out);
-    expect(status).toBe(200);
-    expect(headers["Content-Type"]).toBe("application/x-git-upload-pack-advertisement");
-    expect(body.toString()).toBe("PAYLOAD");
-  });
-
-  it("assume 200 quando não há bloco de headers", () => {
-    const out = Buffer.from("corpo cru");
-    const { status, body } = parseCgi(out);
-    expect(status).toBe(200);
-    expect(body.toString()).toBe("corpo cru");
   });
 });
 

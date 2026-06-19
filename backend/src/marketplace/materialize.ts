@@ -181,20 +181,15 @@ export function marketplaceDiag() {
     const r = spawnSync("git", ["--version"], { encoding: "utf8" });
     return r.status === 0 ? r.stdout.trim() : `erro: ${r.stderr || r.error?.message}`;
   })();
-  const execPath = (() => {
-    const r = spawnSync("git", ["--exec-path"], { encoding: "utf8" });
-    return r.status === 0 ? r.stdout.trim() : "";
+  const uploadPackOk = (() => {
+    // `git upload-pack -h` sai com status != 0 mas prova que o binário existe.
+    const r = spawnSync("git", ["upload-pack", "-h"], { encoding: "utf8" });
+    return r.error === undefined;
   })();
-  const backendCandidates = execPath
-    ? [path.join(execPath, "git-http-backend"), path.join(execPath, "git-http-backend.exe")]
-    : [];
-  const backendPath = backendCandidates.find((c) => fs.existsSync(c)) ?? null;
   const bare = bareDir();
   return {
     gitVersion,
-    execPath,
-    backendPath,
-    backendExists: !!backendPath,
+    uploadPackOk,
     repoRoot: repoRoot(),
     bareDir: bare,
     bareExists: fs.existsSync(path.join(bare, "HEAD")),

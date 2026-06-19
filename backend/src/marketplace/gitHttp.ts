@@ -1,25 +1,21 @@
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
+import zlib from "node:zlib";
 import path from "node:path";
-import fs from "node:fs";
 import { Router, type Request, type Response } from "express";
-import { repoRoot } from "./materialize.js";
+import { repoRoot, REPO_NAME } from "./materialize.js";
 import { validateToken } from "./tokens.js";
 
-// Localiza o binário git-http-backend dentro do exec-path do git (resolvido 1x).
-const gitHttpBackend = (() => {
-  try {
-    const execPath = spawnSync("git", ["--exec-path"], { encoding: "utf8" }).stdout.trim();
-    const candidates = [
-      path.join(execPath, "git-http-backend"),
-      path.join(execPath, "git-http-backend.exe"),
-    ];
-    return candidates.find((c) => fs.existsSync(c)) ?? candidates[0];
-  } catch {
-    return "git-http-backend";
-  }
-})();
+// Implementação direta do protocolo git smart-HTTP (read-only) usando `git
+// upload-pack` — que faz parte do pacote git core. NÃO usamos `git-http-backend`
+// porque o pacote git do Alpine não o inclui.
 
-/** Lê o corpo bruto da requisição (negociação do upload-pack, pequena). */
+/** Empacota uma string no formato pkt-line do protocolo git (4 hex de tamanho + dados). */
+function pktLine(s: string): Buffer {
+  const len = (Buffer.byteLength(s) + 4).toString(16).padStart(4, "0");
+  return Buffer.from(len + s);
+}
+const FLUSH = Buffer.from("0000");
+
 function readBody(req: Request): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
@@ -29,95 +25,96 @@ function readBody(req: Request): Promise<Buffer> {
   });
 }
 
-/** Separa o bloco de headers CGI do corpo na saída do git-http-backend. */
-export function parseCgi(out: Buffer) {
-  const sep = out.indexOf("\r\n\r\n");
-  if (sep === -1) return { status: 200, headers: {} as Record<string, string>, body: out };
-  const headerText = out.slice(0, sep).toString("utf8");
-  const body = out.slice(sep + 4);
-  const headers: Record<string, string> = {};
-  let status = 200;
-  for (const line of headerText.split("\r\n")) {
-    const idx = line.indexOf(":");
-    if (idx === -1) continue;
-    const key = line.slice(0, idx).trim();
-    const value = line.slice(idx + 1).trim();
-    if (key.toLowerCase() === "status") {
-      status = parseInt(value, 10) || 200;
-    } else {
-      headers[key] = value;
-    }
-  }
-  return { status, headers, body };
+/** Resolve o diretório do repo a partir do nome (só o repo conhecido é aceito). */
+function repoDir(repo: string): string | null {
+  if (repo !== REPO_NAME) return null;
+  return path.join(repoRoot(), repo);
 }
 
-async function handle(req: Request, res: Response) {
-  const token = req.params.token;
-  const record = await validateToken(token);
-  // Token inválido/revogado: 404 para não vazar a existência do recurso.
-  if (!record) return res.status(404).type("text/plain").send("not found");
+function gitProtoEnv(req: Request): NodeJS.ProcessEnv {
+  const env = { ...process.env };
+  const gp = req.header("git-protocol");
+  if (gp) env.GIT_PROTOCOL = gp;
+  return env;
+}
 
-  const subPath = req.params[0] ?? ""; // ex: skills.git/info/refs
-  const pathInfo = "/" + subPath;
-
-  // Read-only: nunca aceitamos push.
-  const queryString = (req.originalUrl.split("?")[1] ?? "");
-  if (pathInfo.includes("git-receive-pack") || queryString.includes("git-receive-pack")) {
+// GET .../info/refs?service=git-upload-pack — anúncio das refs (clone/fetch).
+async function handleInfoRefs(req: Request, res: Response) {
+  if (!(await validateToken(req.params.token))) return res.status(404).type("text/plain").send("not found");
+  const dir = repoDir(req.params.repo);
+  if (!dir) return res.status(404).type("text/plain").send("not found");
+  // Só upload-pack (read-only). receive-pack (push) e dumb-http são recusados.
+  if (req.query.service !== "git-upload-pack") {
     return res.status(403).type("text/plain").send("read-only marketplace");
   }
 
-  const body = await readBody(req);
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    GIT_PROJECT_ROOT: repoRoot(),
-    GIT_HTTP_EXPORT_ALL: "1",
-    PATH_INFO: pathInfo,
-    REQUEST_METHOD: req.method,
-    QUERY_STRING: queryString,
-    CONTENT_TYPE: req.header("content-type") ?? "",
-    REMOTE_ADDR: req.ip ?? "",
-  };
-  const contentLength = req.header("content-length");
-  if (contentLength) env.CONTENT_LENGTH = contentLength;
-  const gitProtocol = req.header("git-protocol");
-  if (gitProtocol) env.GIT_PROTOCOL = gitProtocol;
-
-  const child = spawn(gitHttpBackend, [], { env });
-  const out: Buffer[] = [];
+  const child = spawn("git", ["upload-pack", "--stateless-rpc", "--advertise-refs", dir], { env: gitProtoEnv(req) });
   const err: Buffer[] = [];
-  child.stdout.on("data", (c: Buffer) => out.push(c));
   child.stderr.on("data", (c: Buffer) => err.push(c));
   child.on("error", (e) => {
-    console.error("git-http-backend spawn error:", e);
-    if (!res.headersSent) res.status(500).type("text/plain").send("git backend error");
+    console.error("git upload-pack (info/refs) spawn error:", e);
+    if (!res.headersSent) res.status(500).type("text/plain").send("git error");
   });
+  res.status(200);
+  res.setHeader("Content-Type", "application/x-git-upload-pack-advertisement");
+  res.setHeader("Cache-Control", "no-cache");
+  res.write(pktLine("# service=git-upload-pack\n"));
+  res.write(FLUSH);
+  child.stdout.pipe(res);
   child.on("close", (code) => {
-    if (code !== 0) {
-      console.error("git-http-backend exit", code, Buffer.concat(err).toString());
-      if (!res.headersSent) return res.status(500).type("text/plain").send("git backend error");
-      return res.end();
+    if (code !== 0) console.error("git upload-pack (info/refs) exit", code, Buffer.concat(err).toString());
+  });
+  child.stdin.end();
+}
+
+// POST .../git-upload-pack — negociação e envio do packfile.
+async function handleUploadPack(req: Request, res: Response) {
+  if (!(await validateToken(req.params.token))) return res.status(404).type("text/plain").send("not found");
+  const dir = repoDir(req.params.repo);
+  if (!dir) return res.status(404).type("text/plain").send("not found");
+
+  let body = await readBody(req);
+  if ((req.header("content-encoding") || "").includes("gzip")) {
+    try { body = zlib.gunzipSync(body); } catch (e) {
+      console.error("falha ao descomprimir corpo gzip:", e);
+      return res.status(400).type("text/plain").send("bad gzip");
     }
-    const { status, headers, body: respBody } = parseCgi(Buffer.concat(out));
-    res.status(status);
-    for (const [k, v] of Object.entries(headers)) res.setHeader(k, v);
-    res.end(respBody);
+  }
+
+  const child = spawn("git", ["upload-pack", "--stateless-rpc", dir], { env: gitProtoEnv(req) });
+  const err: Buffer[] = [];
+  child.stderr.on("data", (c: Buffer) => err.push(c));
+  child.on("error", (e) => {
+    console.error("git upload-pack spawn error:", e);
+    if (!res.headersSent) res.status(500).type("text/plain").send("git error");
+  });
+  res.status(200);
+  res.setHeader("Content-Type", "application/x-git-upload-pack-result");
+  res.setHeader("Cache-Control", "no-cache");
+  child.stdout.pipe(res);
+  child.on("close", (code) => {
+    if (code !== 0) console.error("git upload-pack exit", code, Buffer.concat(err).toString());
   });
   child.stdin.write(body);
   child.stdin.end();
 }
 
-/**
- * Router git smart-HTTP read-only do marketplace, montado em /git e protegido por
- * token no path. DEVE ser montado ANTES de express.json() (corpo binário) e do
- * fallback do SPA.
- */
-export function gitHttpRouter() {
-  const router = Router();
-  router.all("/git/m/:token/*", (req, res) => {
-    handle(req, res).catch((e) => {
+function wrap(fn: (req: Request, res: Response) => Promise<unknown>) {
+  return (req: Request, res: Response) => {
+    fn(req, res).catch((e) => {
       console.error("git http handler error:", e);
       if (!res.headersSent) res.status(500).type("text/plain").send("internal error");
     });
-  });
+  };
+}
+
+/**
+ * Router git smart-HTTP read-only do marketplace, protegido por token no path.
+ * DEVE ser montado ANTES de express.json() (corpo binário) e do fallback do SPA.
+ */
+export function gitHttpRouter() {
+  const router = Router();
+  router.get("/git/m/:token/:repo/info/refs", wrap(handleInfoRefs));
+  router.post("/git/m/:token/:repo/git-upload-pack", wrap(handleUploadPack));
   return router;
 }
