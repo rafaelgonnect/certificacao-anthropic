@@ -1,0 +1,9 @@
+{
+  "slug": "superset",
+  "displayName": "Superset (Colaborativa)",
+  "description": "Conjunto de skills para trabalhar com Apache Superset 6.x: agente CRUD via MCP, embedding multi-tenant com RLS, design/tema do frontend, integração com Django, auditoria de segurança e as regras de desenvolvimento do time.",
+  "version": "1.0.0",
+  "category": "data-bi",
+  "keywords": ["superset", "bi", "dashboards", "embedding", "rls", "django", "mcp"],
+  "author": "Colaborativa"
+}

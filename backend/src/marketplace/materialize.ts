@@ -30,6 +30,7 @@ function git(args: string[], opts: { cwd?: string } = {}) {
   return res.stdout;
 }
 
+export type SkillFile = { path: string; content: string };
 type PluginForBuild = {
   slug: string;
   displayName: string;
@@ -38,7 +39,7 @@ type PluginForBuild = {
   category: string | null;
   keywords: string[];
   author: string | null;
-  skills: { slug: string; skillMd: string }[];
+  skills: { slug: string; skillMd: string; files?: SkillFile[] }[];
 };
 
 /** Monta o objeto marketplace.json a partir dos plugins publicados. */
@@ -87,6 +88,13 @@ export function writeTree(dest: string, plugins: PluginForBuild[]) {
       const sdir = path.join(pdir, "skills", s.slug);
       fs.mkdirSync(sdir, { recursive: true });
       fs.writeFileSync(path.join(sdir, "SKILL.md"), s.skillMd);
+      for (const f of s.files ?? []) {
+        // Bloqueia path traversal: normaliza e garante que fica dentro do dir da skill.
+        const target = path.resolve(sdir, f.path);
+        if (target !== sdir && !target.startsWith(sdir + path.sep)) continue;
+        fs.mkdirSync(path.dirname(target), { recursive: true });
+        fs.writeFileSync(target, f.content);
+      }
     }
   }
 }
@@ -105,7 +113,11 @@ async function loadPublishedPlugins(): Promise<PluginForBuild[]> {
     category: p.category,
     keywords: p.keywords,
     author: p.author,
-    skills: p.skills.map((s) => ({ slug: s.slug, skillMd: s.skillMd })),
+    skills: p.skills.map((s) => ({
+      slug: s.slug,
+      skillMd: s.skillMd,
+      files: Array.isArray(s.files) ? (s.files as unknown as SkillFile[]) : [],
+    })),
   }));
 }
 

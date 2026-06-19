@@ -1,0 +1,57 @@
+{# templates/dashboard.html — embed a Superset dashboard scoped to the logged-in tenant. #}
+{# The guest token is fetched from a server endpoint; the browser never sees admin creds. #}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Painel</title>
+  <style>
+    html, body { margin: 0; height: 100%; }
+    #superset-dash { width: 100%; height: 100vh; border: 0; }
+    #superset-dash iframe { width: 100%; height: 100%; border: 0; }
+    .erro { padding: 24px; font-family: Inter, system-ui, sans-serif; color: #b00020; }
+  </style>
+</head>
+<body>
+  <div id="superset-dash"></div>
+  <div id="erro" class="erro" hidden>Não foi possível carregar o painel. Tente novamente.</div>
+
+  <!-- Pin a version in production instead of @latest -->
+  <script src="https://unpkg.com/@superset-ui/embedded-sdk"></script>
+  <script>
+    (function () {
+      const mount = document.getElementById("superset-dash");
+
+      async function fetchGuestToken() {
+        // Hits the Django view; the session cookie authenticates the user,
+        // and Django derives the tenant from request.user (never from here).
+        const resp = await fetch("{% url 'superset_guest_token' %}?dashboard={{ dashboard_id }}", {
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" },
+        });
+        if (!resp.ok) throw new Error("guest token HTTP " + resp.status);
+        const data = await resp.json();
+        return data.token;
+      }
+
+      try {
+        supersetEmbeddedSdk.embedDashboard({
+          id: "{{ embedded_uuid }}",                  // EMBEDDED UUID (not the numeric id)
+          supersetDomain: "{{ superset_domain }}",
+          mountPoint: mount,
+          fetchGuestToken: fetchGuestToken,           // called on load + on token expiry
+          dashboardUiConfig: {
+            hideTitle: true,
+            hideTab: true,
+            hideChartControls: false,
+            filters: { visible: false, expanded: false },
+          },
+        });
+      } catch (e) {
+        console.error(e);
+        document.getElementById("erro").hidden = false;
+      }
+    })();
+  </script>
+</body>
+</html>

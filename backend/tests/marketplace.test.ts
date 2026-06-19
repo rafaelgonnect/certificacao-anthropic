@@ -16,7 +16,7 @@ const samplePlugins = [
     keywords: ["git", "vcs"],
     author: "Colaborativa",
     skills: [
-      { slug: "rebase-seguro", skillMd: "---\nname: rebase-seguro\n---\nconteúdo" },
+      { slug: "rebase-seguro", skillMd: "---\nname: rebase-seguro\n---\nconteúdo", files: [{ path: "references/guia.md", content: "# guia" }] },
       { slug: "bisect", skillMd: "# bisect" },
     ],
   },
@@ -72,6 +72,10 @@ describe("writeTree", () => {
 
     const skill = fs.readFileSync(path.join(dest, "plugins", "git-helpers", "skills", "rebase-seguro", "SKILL.md"), "utf8");
     expect(skill).toContain("rebase-seguro");
+
+    // arquivo extra (references/) materializado preservando o caminho relativo
+    const ref = fs.readFileSync(path.join(dest, "plugins", "git-helpers", "skills", "rebase-seguro", "references", "guia.md"), "utf8");
+    expect(ref).toBe("# guia");
   });
 
   it("limpa o destino antes de reescrever (remove skills excluídas)", () => {

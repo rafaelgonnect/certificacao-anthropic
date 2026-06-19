@@ -63,6 +63,7 @@ model PluginSkill {
   pluginId  String
   slug      String // pasta skills/<slug>/
   skillMd   String // conteúdo do SKILL.md (frontmatter + corpo)
+  files     Json   @default("[]") // arquivos extras: [{ path, content }] (ex: references/x.md)
 
   @@unique([pluginId, slug])
 }

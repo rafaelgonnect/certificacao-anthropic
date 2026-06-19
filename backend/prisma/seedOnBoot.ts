@@ -8,11 +8,13 @@
 import { PrismaClient } from "@prisma/client";
 import { packs } from "./content/registry.js";
 import { seedPack, upsertAdmin } from "./seedPack.js";
+import { seedMarketplace } from "./seedMarketplace.js";
 
 const prisma = new PrismaClient();
 
 try {
   await upsertAdmin(prisma);
+  await seedMarketplace(prisma);
 
   for (const pack of packs) {
     const existing = await prisma.certification.findUnique({
