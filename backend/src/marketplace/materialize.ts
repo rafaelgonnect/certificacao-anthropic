@@ -122,6 +122,8 @@ async function loadPublishedPlugins(): Promise<PluginForBuild[]> {
 }
 
 let materializing: Promise<void> | null = null;
+let lastError: string | null = null;
+let lastOkAt: string | null = null;
 
 /**
  * Regenera o repositório git do marketplace a partir do banco (plugins publicados)
@@ -158,6 +160,11 @@ export async function materialize(): Promise<void> {
   })();
   try {
     await materializing;
+    lastError = null;
+    lastOkAt = new Date().toISOString();
+  } catch (e) {
+    lastError = e instanceof Error ? e.message : String(e);
+    throw e;
   } finally {
     materializing = null;
   }
@@ -166,4 +173,32 @@ export async function materialize(): Promise<void> {
 /** Caminho do repo bare servido pelo git-http-backend (GIT_PROJECT_ROOT = repoRoot). */
 export function bareRepoPath() {
   return bareDir();
+}
+
+/** Diagnóstico do serving git (admin): versão do git, backend, repo, último erro. */
+export function marketplaceDiag() {
+  const gitVersion = (() => {
+    const r = spawnSync("git", ["--version"], { encoding: "utf8" });
+    return r.status === 0 ? r.stdout.trim() : `erro: ${r.stderr || r.error?.message}`;
+  })();
+  const execPath = (() => {
+    const r = spawnSync("git", ["--exec-path"], { encoding: "utf8" });
+    return r.status === 0 ? r.stdout.trim() : "";
+  })();
+  const backendCandidates = execPath
+    ? [path.join(execPath, "git-http-backend"), path.join(execPath, "git-http-backend.exe")]
+    : [];
+  const backendPath = backendCandidates.find((c) => fs.existsSync(c)) ?? null;
+  const bare = bareDir();
+  return {
+    gitVersion,
+    execPath,
+    backendPath,
+    backendExists: !!backendPath,
+    repoRoot: repoRoot(),
+    bareDir: bare,
+    bareExists: fs.existsSync(path.join(bare, "HEAD")),
+    lastError,
+    lastOkAt,
+  };
 }

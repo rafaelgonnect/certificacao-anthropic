@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../db.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
-import { materialize, MARKETPLACE_NAME, REPO_NAME } from "./materialize.js";
+import { materialize, marketplaceDiag, MARKETPLACE_NAME, REPO_NAME } from "./materialize.js";
 import { ensureToken, rotateToken } from "./tokens.js";
 
 export const marketplaceRoutes = Router();
@@ -159,6 +159,11 @@ marketplaceRoutes.delete("/admin/plugins/:id/skills/:skillId", ...admin, async (
   if (!s || s.pluginId !== req.params.id) return res.status(404).json({ error: "not found" });
   await prisma.pluginSkill.delete({ where: { id: s.id } });
   res.json({ ok: true });
+});
+
+// GET /admin/marketplace/diag → diagnóstico do serving git
+marketplaceRoutes.get("/admin/marketplace/diag", ...admin, async (_req, res) => {
+  res.json(marketplaceDiag());
 });
 
 // POST /admin/marketplace/publish → regenera o repo git a partir do banco
